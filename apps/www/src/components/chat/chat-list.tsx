@@ -1,7 +1,6 @@
-import { Message, UserData } from "@/app/data";
+import { Message, ConversationWithUser } from "@/app/data";
 import { cn } from "@/lib/utils";
-import React, { useRef, useEffect } from "react";
-import ChatBottombar from "./chat-bottombar";
+import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ChatBubbleAvatar,
@@ -11,42 +10,42 @@ import {
   ChatBubbleAction,
   ChatBubbleActionWrapper,
   ChatMessageList,
-  useAutoScroll,
 } from "@shadcn-chat/ui";
-import { DotsVerticalIcon, HeartIcon, Share1Icon } from "@radix-ui/react-icons";
+import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import { Forward, Heart } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatListProps {
   messages: Message[];
-  selectedUser: UserData;
-  sendMessage: (newMessage: Message) => void;
+  conversation: ConversationWithUser;
   isMobile: boolean;
 }
 
-const getMessageVariant = (messageName: string, selectedUserName: string) =>
-  messageName !== selectedUserName ? "sent" : "received";
-
 export function ChatList({
   messages,
-  selectedUser,
-  sendMessage,
+  conversation,
   isMobile,
 }: ChatListProps) {
+  const { user } = useAuth();
   const actionIcons = [
     { icon: DotsVerticalIcon, type: "More" },
     { icon: Forward, type: "Like" },
     { icon: Heart, type: "Share" },
   ];
 
+  const getMessageVariant = (senderId: string) => {
+    return senderId === user?.id ? "sent" : "received";
+  };
+
   return (
     <div className="w-full overflow-y-hidden h-full flex flex-col">
       <ChatMessageList>
         <AnimatePresence>
           {messages.map((message, index) => {
-            const variant = getMessageVariant(message.name, selectedUser.name);
+            const variant = getMessageVariant(message.sender_id || "");
             return (
               <motion.div
-                key={index}
+                key={message.id}
                 layout
                 initial={{ opacity: 0, scale: 1, y: 50, x: 0 }}
                 animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
@@ -62,7 +61,6 @@ export function ChatList({
                 style={{ originX: 0.5, originY: 0.5 }}
                 className="flex flex-col gap-2 p-4"
               >
-                {/* Usage of ChatBubble component */}
                 <ChatBubble variant={variant}>
                   <ChatBubbleAvatar src={message.avatar} />
                   <ChatBubbleMessage isLoading={message.isLoading}>
@@ -79,7 +77,7 @@ export function ChatList({
                         icon={<Icon className="size-4" />}
                         onClick={() =>
                           console.log(
-                            "Action " + type + " clicked for message " + index,
+                            "Action " + type + " clicked for message " + message.id,
                           )
                         }
                       />

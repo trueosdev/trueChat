@@ -141,78 +141,6 @@ export const userData: User[] = [
   },
 ];
 
-export const ChatBotMessages: Message[] = [
-  {
-    id: 1,
-    avatar: "/",
-    name: "ChatBot",
-    message: "Hello! How can I help you today?",
-    timestamp: "10:00 AM",
-    role: "ai",
-  },
-  {
-    id: 2,
-    avatar:
-      "https://avatars.githubusercontent.com/u/114422072?s=400&u=8a176a310ca29c1578a70b1c33bdeea42bf000b4&v=4",
-    name: "Jakob Hoeg",
-    message: "I need help with my order",
-    timestamp: "10:01 AM",
-    role: "user",
-  },
-  {
-    id: 3,
-    avatar: "/",
-    name: "ChatBot",
-    message: "Sure! Please provide me with your order number",
-    timestamp: "10:02 AM",
-    role: "ai",
-  },
-  {
-    id: 4,
-    avatar:
-      "https://avatars.githubusercontent.com/u/114422072?s=400&u=8a176a310ca29c1578a70b1c33bdeea42bf000b4&v=4",
-    name: "Jakob Hoeg",
-    message: "123456",
-    timestamp: "10:03 AM",
-    role: "user",
-  },
-  {
-    id: 5,
-    avatar: "/",
-    name: "ChatBot",
-    message: "Thank you! One moment please while I look up your order",
-    timestamp: "10:04 AM",
-    role: "ai",
-  },
-  {
-    id: 6,
-    avatar: "/",
-    name: "ChatBot",
-    message:
-      "I have found your order. It is currently being processed and will be shipped out soon.",
-    timestamp: "10:05 AM",
-    role: "ai",
-  },
-  {
-    id: 7,
-    avatar:
-      "https://avatars.githubusercontent.com/u/114422072?s=400&u=8a176a310ca29c1578a70b1c33bdeea42bf000b4&v=4",
-    name: "Jakob Hoeg",
-    message: "Thank you for your help!",
-    timestamp: "10:06 AM",
-    role: "user",
-  },
-  {
-    id: 8,
-    avatar: "/",
-    name: "ChatBot",
-    message: "You are welcome! Have a great day!",
-    isLoading: true,
-    timestamp: "10:10 AM",
-    role: "ai",
-  },
-];
-
 export type UserData = (typeof userData)[number];
 
 export const loggedInUserData = {
@@ -224,20 +152,49 @@ export const loggedInUserData = {
 
 export type LoggedInUserData = typeof loggedInUserData;
 
+// Legacy types for backward compatibility (will be replaced with Supabase types)
 export interface Message {
-  id: number;
+  id: number | string;
   avatar: string;
   name: string;
   message?: string;
   isLoading?: boolean;
   timestamp?: string;
-  role?: string;
   isLiked?: boolean;
+  sender_id?: string;
+  conversation_id?: string;
+  created_at?: string;
 }
 
 export interface User {
-  id: number;
+  id: number | string;
   avatar: string;
   messages: Message[];
   name: string;
+  email?: string;
+  username?: string;
+  fullname?: string;
+  avatar_url?: string;
+  bio?: string;
+}
+
+// Supabase-compatible types
+export interface ConversationWithUser {
+  id: string;
+  created_at: string;
+  user1_id: string;
+  user2_id: string;
+  last_message: {
+    id: string;
+    content: string;
+    sender_id: string;
+    created_at: string;
+  } | null;
+  other_user: {
+    id: string;
+    username: string | null;
+    fullname: string | null;
+    avatar_url: string | null;
+    email: string;
+  };
 }

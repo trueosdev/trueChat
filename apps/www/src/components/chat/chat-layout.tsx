@@ -1,6 +1,5 @@
 "use client";
 
-import { userData } from "@/app/data";
 import React, { useEffect, useState } from "react";
 import {
   ResizableHandle,
@@ -10,6 +9,11 @@ import {
 import { cn } from "@/lib/utils";
 import { Sidebar } from "../sidebar";
 import { Chat } from "./chat";
+import { useAuth } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/auth/protected-route";
+import { getConversations, subscribeToConversations } from "@/lib/services/conversations";
+import useChatStore from "@/hooks/useChatStore";
+import type { ConversationWithUser } from "@/app/data";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -22,79 +26,137 @@ export function ChatLayout({
   defaultCollapsed = false,
   navCollapsedSize,
 }: ChatLayoutProps) {
+  const { user, loading: authLoading } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
-  const [selectedUser, setSelectedUser] = React.useState(userData[0]);
   const [isMobile, setIsMobile] = useState(false);
+  const conversations = useChatStore((state) => state.conversations);
+  const selectedConversationId = useChatStore((state) => state.selectedConversationId);
+  const setConversations = useChatStore((state) => state.setConversations);
+  const addConversation = useChatStore((state) => state.addConversation);
+  const updateConversation = useChatStore((state) => state.updateConversation);
+  const setLoading = useChatStore((state) => state.setLoading);
 
   useEffect(() => {
     const checkScreenWidth = () => {
       setIsMobile(window.innerWidth <= 768);
     };
 
-    // Initial check
     checkScreenWidth();
-
-    // Event listener for screen width changes
     window.addEventListener("resize", checkScreenWidth);
 
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("resize", checkScreenWidth);
     };
   }, []);
 
+  useEffect(() => {
+    if (!user) return;
+
+    // Load conversations
+    setLoading(true);
+    getConversations(user.id).then((data) => {
+      setConversations(data);
+      setLoading(false);
+    });
+
+    // Subscribe to real-time updates
+    const unsubscribe = subscribeToConversations(user.id, (conversation) => {
+      const exists = conversations.find((c) => c.id === conversation.id);
+      if (exists) {
+        updateConversation(conversation.id, conversation);
+      } else {
+        addConversation(conversation);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [user, setConversations, addConversation, updateConversation, setLoading]);
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mx-auto"></div>
+          <p className="mt-4 text-black dark:text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedConversation = conversations.find(
+    (c) => c.id === selectedConversationId
+  );
+
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      onLayout={(sizes: number[]) => {
-        document.cookie = `react-resizable-panels:layout=${JSON.stringify(
-          sizes,
-        )}`;
-      }}
-      className="h-full items-stretch"
-    >
-      <ResizablePanel
-        defaultSize={defaultLayout[0]}
-        collapsedSize={navCollapsedSize}
-        collapsible={true}
-        minSize={isMobile ? 0 : 24}
-        maxSize={isMobile ? 8 : 30}
-        onCollapse={() => {
-          setIsCollapsed(true);
-          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-            true,
+    <ProtectedRoute>
+      <ResizablePanelGroup
+        direction="horizontal"
+        onLayout={(sizes: number[]) => {
+          document.cookie = `react-resizable-panels:layout=${JSON.stringify(
+            sizes,
           )}`;
         }}
-        onExpand={() => {
-          setIsCollapsed(false);
-          document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
-            false,
-          )}`;
-        }}
-        className={cn(
-          isCollapsed &&
-            "min-w-[50px] md:min-w-[70px] transition-all duration-300 ease-in-out",
-        )}
+        className="h-full items-stretch"
       >
-        <Sidebar
-          isCollapsed={isCollapsed || isMobile}
-          chats={userData.map((user) => ({
-            name: user.name,
-            messages: user.messages ?? [],
-            avatar: user.avatar,
-            variant: selectedUser.name === user.name ? "secondary" : "ghost",
-          }))}
-          isMobile={isMobile}
-        />
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-        <Chat
-          messages={selectedUser.messages}
-          selectedUser={selectedUser}
-          isMobile={isMobile}
-        />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+        <ResizablePanel
+          defaultSize={defaultLayout[0]}
+          collapsedSize={navCollapsedSize}
+          collapsible={true}
+          minSize={isMobile ? 0 : 24}
+          maxSize={isMobile ? 8 : 30}
+          onCollapse={() => {
+            setIsCollapsed(true);
+            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+              true,
+            )}`;
+          }}
+          onExpand={() => {
+            setIsCollapsed(false);
+            document.cookie = `react-resizable-panels:collapsed=${JSON.stringify(
+              false,
+            )}`;
+          }}
+          className={cn(
+            isCollapsed &&
+              "min-w-[50px] md:min-w-[70px] transition-all duration-300 ease-in-out",
+          )}
+        >
+          <Sidebar
+            isCollapsed={isCollapsed || isMobile}
+            chats={conversations.map((conv) => ({
+              id: conv.id,
+              name: conv.other_user.fullname || conv.other_user.username || conv.other_user.email || "Unknown",
+              messages: conv.last_message ? [{
+                id: conv.last_message.id,
+                name: conv.other_user.fullname || conv.other_user.username || "Unknown",
+                message: conv.last_message.content,
+                timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
+              }] : [],
+              avatar: conv.other_user.avatar_url || "",
+              variant: selectedConversationId === conv.id ? "secondary" : "ghost",
+            }))}
+            isMobile={isMobile}
+            onChatSelect={(conversationId) => {
+              useChatStore.getState().setSelectedConversationId(conversationId);
+            }}
+          />
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
+          {selectedConversation ? (
+            <Chat
+              conversation={selectedConversation}
+              isMobile={isMobile}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-black dark:text-white">
+              Select a conversation to start chatting
+            </div>
+          )}
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </ProtectedRoute>
   );
 }

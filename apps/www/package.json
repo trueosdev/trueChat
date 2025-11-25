@@ -22,6 +22,8 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.0.7",
     "@shadcn-chat/ui": "^1.0.1",
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.84.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "emoji-mart": "^5.5.2",

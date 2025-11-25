@@ -1,59 +1,36 @@
-import {
-  ChatBotMessages,
-  Message,
-  UserData,
-  userData,
-  Users,
-} from "@/app/data";
+import { Message, ConversationWithUser } from "@/app/data";
 import { create } from "zustand";
 
-export interface Example {
-  name: string;
-  url: string;
-}
-
 interface State {
-  selectedExample: Example;
-  examples: Example[];
   input: string;
-  chatBotMessages: Message[];
   messages: Message[];
-  hasInitialAIResponse: boolean;
-  hasInitialResponse: boolean;
+  conversations: ConversationWithUser[];
+  selectedConversationId: string | null;
+  loading: boolean;
 }
 
 interface Actions {
-  selectedUser: UserData;
-  setSelectedExample: (example: Example) => void;
-  setExamples: (examples: Example[]) => void;
   setInput: (input: string) => void;
   handleInputChange: (
     e:
       | React.ChangeEvent<HTMLInputElement>
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => void;
-  setchatBotMessages: (fn: (chatBotMessages: Message[]) => Message[]) => void;
-  setMessages: (fn: (messages: Message[]) => Message[]) => void;
-  setHasInitialAIResponse: (hasInitialAIResponse: boolean) => void;
-  setHasInitialResponse: (hasInitialResponse: boolean) => void;
+  setMessages: (messages: Message[]) => void;
+  addMessage: (message: Message) => void;
+  setConversations: (conversations: ConversationWithUser[]) => void;
+  addConversation: (conversation: ConversationWithUser) => void;
+  updateConversation: (conversationId: string, updates: Partial<ConversationWithUser>) => void;
+  setSelectedConversationId: (id: string | null) => void;
+  setLoading: (loading: boolean) => void;
 }
 
 const useChatStore = create<State & Actions>()((set) => ({
-  selectedUser: Users[4],
-
-  selectedExample: { name: "Messenger example", url: "/" },
-
-  examples: [
-    { name: "Messenger example", url: "/" },
-    { name: "Chatbot example", url: "/chatbot" },
-    { name: "Chatbot2 example", url: "/chatbot2" },
-  ],
-
   input: "",
-
-  setSelectedExample: (selectedExample) => set({ selectedExample }),
-
-  setExamples: (examples) => set({ examples }),
+  messages: [],
+  conversations: [],
+  selectedConversationId: null,
+  loading: false,
 
   setInput: (input) => set({ input }),
   handleInputChange: (
@@ -62,19 +39,20 @@ const useChatStore = create<State & Actions>()((set) => ({
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => set({ input: e.target.value }),
 
-  chatBotMessages: ChatBotMessages,
-  setchatBotMessages: (fn) =>
-    set(({ chatBotMessages }) => ({ chatBotMessages: fn(chatBotMessages) })),
+  setMessages: (messages) => set({ messages }),
+  addMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
 
-  messages: userData[0].messages,
-  setMessages: (fn) => set(({ messages }) => ({ messages: fn(messages) })),
-
-  hasInitialAIResponse: false,
-  setHasInitialAIResponse: (hasInitialAIResponse) =>
-    set({ hasInitialAIResponse }),
-
-  hasInitialResponse: false,
-  setHasInitialResponse: (hasInitialResponse) => set({ hasInitialResponse }),
+  setConversations: (conversations) => set({ conversations }),
+  addConversation: (conversation) => set((state) => ({ 
+    conversations: [conversation, ...state.conversations] 
+  })),
+  updateConversation: (conversationId, updates) => set((state) => ({
+    conversations: state.conversations.map((conv) =>
+      conv.id === conversationId ? { ...conv, ...updates } : conv
+    ),
+  })),
+  setSelectedConversationId: (id) => set({ selectedConversationId: id }),
+  setLoading: (loading) => set({ loading }),
 }));
 
 export default useChatStore;

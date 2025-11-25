@@ -1,37 +1,55 @@
-import { Message, UserData } from "@/app/data";
+import { ConversationWithUser } from "@/app/data";
 import ChatTopbar from "./chat-topbar";
 import { ChatList } from "./chat-list";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import useChatStore from "@/hooks/useChatStore";
 import ChatBottombar from "./chat-bottombar";
+import { getMessages, subscribeToMessages } from "@/lib/services/messages";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatProps {
-  messages?: Message[];
-  selectedUser: UserData;
+  conversation: ConversationWithUser;
   isMobile: boolean;
 }
 
-export function Chat({ messages, selectedUser, isMobile }: ChatProps) {
-  const messagesState = useChatStore((state) => state.messages);
+export function Chat({ conversation, isMobile }: ChatProps) {
+  const { user } = useAuth();
+  const messages = useChatStore((state) => state.messages);
+  const setMessages = useChatStore((state) => state.setMessages);
+  const addMessage = useChatStore((state) => state.addMessage);
+  const setLoading = useChatStore((state) => state.setLoading);
 
-  const sendMessage = (newMessage: Message) => {
-    useChatStore.setState((state) => ({
-      messages: [...state.messages, newMessage],
-    }));
-  };
+  useEffect(() => {
+    if (!conversation) return;
+
+    // Load messages
+    setLoading(true);
+    getMessages(conversation.id).then((data) => {
+      setMessages(data);
+      setLoading(false);
+    });
+
+    // Subscribe to real-time message updates
+    const unsubscribe = subscribeToMessages(conversation.id, (message) => {
+      addMessage(message);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [conversation.id, setMessages, addMessage, setLoading]);
 
   return (
     <div className="flex flex-col justify-between w-full h-full">
-      <ChatTopbar selectedUser={selectedUser} />
+      <ChatTopbar conversation={conversation} />
 
       <ChatList
-        messages={messagesState}
-        selectedUser={selectedUser}
-        sendMessage={sendMessage}
+        messages={messages}
+        conversation={conversation}
         isMobile={isMobile}
       />
 
-      <ChatBottombar isMobile={isMobile} />
+      <ChatBottombar conversationId={conversation.id} isMobile={isMobile} />
     </div>
   );
 }

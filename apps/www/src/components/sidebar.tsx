@@ -16,6 +16,7 @@ import { Message } from "@/app/data";
 interface SidebarProps {
   isCollapsed: boolean;
   chats: {
+    id: string;
     name: string;
     messages: Message[];
     avatar: string;
@@ -23,9 +24,10 @@ interface SidebarProps {
   }[];
   onClick?: () => void;
   isMobile: boolean;
+  onChatSelect?: (conversationId: string) => void;
 }
 
-export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
+export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect }: SidebarProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -35,7 +37,7 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
         <div className="flex justify-between p-2 items-center">
           <div className="flex gap-2 items-center text-2xl">
             <p className="font-medium">Chats</p>
-            <span className="text-zinc-300">({chats.length})</span>
+            <span className="text-black dark:text-white">({chats.length})</span>
           </div>
 
           <div>
@@ -64,11 +66,11 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
         {chats.map((chat, index) =>
           isCollapsed ? (
-            <TooltipProvider key={index}>
-              <Tooltip key={index} delayDuration={0}>
+            <TooltipProvider key={chat.id}>
+              <Tooltip key={chat.id} delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Link
-                    href="#"
+                  <button
+                    onClick={() => onChatSelect?.(chat.id)}
                     className={cn(
                       buttonVariants({ variant: chat.variant, size: "icon" }),
                       "h-11 w-11 md:h-16 md:w-16",
@@ -86,7 +88,7 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
                       />
                     </Avatar>{" "}
                     <span className="sr-only">{chat.name}</span>
-                  </Link>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent
                   side="right"
@@ -97,9 +99,9 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
               </Tooltip>
             </TooltipProvider>
           ) : (
-            <Link
-              key={index}
-              href="#"
+            <button
+              key={chat.id}
+              onClick={() => onChatSelect?.(chat.id)}
               className={cn(
                 buttonVariants({ variant: chat.variant, size: "xl" }),
                 chat.variant === "secondary" &&
@@ -119,7 +121,7 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
               <div className="flex flex-col max-w-28">
                 <span>{chat.name}</span>
                 {chat.messages.length > 0 && (
-                  <span className="text-zinc-300 text-xs truncate ">
+                  <span className="text-black dark:text-white text-xs truncate ">
                     {chat.messages[chat.messages.length - 1].name.split(" ")[0]}
                     :{" "}
                     {chat.messages[chat.messages.length - 1].isLoading
@@ -128,7 +130,7 @@ export function Sidebar({ chats, isCollapsed, isMobile }: SidebarProps) {
                   </span>
                 )}
               </div>
-            </Link>
+            </button>
           ),
         )}
       </nav>

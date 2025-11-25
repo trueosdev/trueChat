@@ -7,100 +7,61 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { Message, loggedInUserData } from "@/app/data";
 import { EmojiPicker } from "../emoji-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ChatInput } from "@shadcn-chat/ui";
+import { sendMessage } from "@/lib/services/messages";
+import { useAuth } from "@/hooks/useAuth";
 import useChatStore from "@/hooks/useChatStore";
 
 interface ChatBottombarProps {
+  conversationId: string;
   isMobile: boolean;
 }
 
 export const BottombarIcons = [{ icon: FileImage }, { icon: Paperclip }];
 
-export default function ChatBottombar({ isMobile }: ChatBottombarProps) {
+export default function ChatBottombar({ conversationId, isMobile }: ChatBottombarProps) {
+  const { user } = useAuth();
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const setMessages = useChatStore((state) => state.setMessages);
-  const hasInitialResponse = useChatStore((state) => state.hasInitialResponse);
-  const setHasInitialResponse = useChatStore(
-    (state) => state.setHasInitialResponse,
-  );
-  const [isLoading, setisLoading] = useState(false);
+  const addMessage = useChatStore((state) => state.addMessage);
+  const [isLoading, setSelectedLoading] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   };
 
-  const sendMessage = (newMessage: Message) => {
-    useChatStore.setState((state) => ({
-      messages: [...state.messages, newMessage],
-    }));
-  };
-
-  const handleThumbsUp = () => {
-    const newMessage: Message = {
-      id: message.length + 1,
-      name: loggedInUserData.name,
-      avatar: loggedInUserData.avatar,
-      message: "👍",
-    };
-    sendMessage(newMessage);
-    setMessage("");
-  };
-
-  const handleSend = () => {
-    if (message.trim()) {
-      const newMessage: Message = {
-        id: message.length + 1,
-        name: loggedInUserData.name,
-        avatar: loggedInUserData.avatar,
-        message: message.trim(),
-      };
-      sendMessage(newMessage);
-      setMessage("");
-
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+  const handleThumbsUp = async () => {
+    if (!user || !conversationId) return;
+    
+    setSelectedLoading(true);
+    const sentMessage = await sendMessage(conversationId, "👍", user.id);
+    if (sentMessage) {
+      addMessage(sentMessage);
     }
+    setSelectedLoading(false);
   };
 
-  const formattedTime = new Date().toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const handleSend = async () => {
+    if (!message.trim() || !user || !conversationId) return;
+    
+    setSelectedLoading(true);
+    const sentMessage = await sendMessage(conversationId, message.trim(), user.id);
+    if (sentMessage) {
+      addMessage(sentMessage);
+      setMessage("");
+    }
+    setSelectedLoading(false);
 
-  useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-
-    if (!hasInitialResponse) {
-      setisLoading(true);
-      setTimeout(() => {
-        setMessages((messages) => [
-          ...messages.slice(0, messages.length - 1),
-          {
-            id: messages.length + 1,
-            avatar:
-              "https://images.freeimages.com/images/large-previews/971/basic-shape-avatar-1632968.jpg?fmt=webp&h=350",
-            name: "Jane Doe",
-            message: "Awesome! I am just chilling outside.",
-            timestamp: formattedTime,
-          },
-        ]);
-        setisLoading(false);
-        setHasInitialResponse(true);
-      }, 2500);
-    }
-  }, []);
+  };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -230,7 +191,7 @@ export default function ChatBottombar({ isMobile }: ChatBottombarProps) {
           <Button
             className="h-9 w-9 shrink-0"
             onClick={handleSend}
-            disabled={isLoading}
+            disabled={selectedLoading}
             variant="ghost"
             size="icon"
           >
@@ -240,7 +201,7 @@ export default function ChatBottombar({ isMobile }: ChatBottombarProps) {
           <Button
             className="h-9 w-9 shrink-0"
             onClick={handleThumbsUp}
-            disabled={isLoading}
+            disabled={selectedLoading}
             variant="ghost"
             size="icon"
           >
