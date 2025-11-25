@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@emoji-mart/data": "^1.1.2",
+    "@swc/helpers": "^0.5.11",
     "styled-jsx": "^5.1.6",
     "@emoji-mart/react": "^1.1.1",
     "@radix-ui/react-avatar": "^1.0.4",
