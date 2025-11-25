@@ -14,6 +14,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import { getConversations, subscribeToConversations } from "@/lib/services/conversations";
 import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
+import { NewChatDialog } from "../new-chat-dialog";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -29,11 +30,13 @@ export function ChatLayout({
   const { user, loading: authLoading } = useAuth();
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
+  const [newChatOpen, setNewChatOpen] = useState(false);
   const conversations = useChatStore((state) => state.conversations);
   const selectedConversationId = useChatStore((state) => state.selectedConversationId);
   const setConversations = useChatStore((state) => state.setConversations);
   const addConversation = useChatStore((state) => state.addConversation);
   const updateConversation = useChatStore((state) => state.updateConversation);
+  const setSelectedConversationId = useChatStore((state) => state.setSelectedConversationId);
   const setLoading = useChatStore((state) => state.setLoading);
 
   useEffect(() => {
@@ -76,10 +79,9 @@ export function ChatLayout({
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full w-full">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mx-auto"></div>
-          <p className="mt-4 text-black dark:text-white">Loading...</p>
+          <div className="loader mx-auto"></div>
         </div>
       </div>
     );
@@ -89,8 +91,22 @@ export function ChatLayout({
     (c) => c.id === selectedConversationId
   );
 
+  const handleConversationCreated = async (conversationId: string) => {
+    // Reload conversations to get the new one with user details
+    if (user) {
+      const updatedConversations = await getConversations(user.id);
+      setConversations(updatedConversations);
+      setSelectedConversationId(conversationId);
+    }
+  };
+
   return (
     <ProtectedRoute>
+      <NewChatDialog
+        open={newChatOpen}
+        onOpenChange={setNewChatOpen}
+        onConversationCreated={handleConversationCreated}
+      />
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
@@ -141,6 +157,7 @@ export function ChatLayout({
             onChatSelect={(conversationId) => {
               useChatStore.getState().setSelectedConversationId(conversationId);
             }}
+            onNewChat={() => setNewChatOpen(true)}
           />
         </ResizablePanel>
         <ResizableHandle withHandle />

@@ -27,7 +27,7 @@ interface SidebarProps {
   onChatSelect?: (conversationId: string) => void;
 }
 
-export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect }: SidebarProps) {
+export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat }: SidebarProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -51,15 +51,15 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect }: SidebarP
               <MoreHorizontal size={20} />
             </Link>
 
-            <Link
-              href="#"
+            <button
+              onClick={onNewChat}
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon" }),
                 "h-9 w-9",
               )}
             >
               <SquarePen size={20} />
-            </Link>
+            </button>
           </div>
         </div>
       )}
