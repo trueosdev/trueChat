@@ -6,8 +6,6 @@ trueChat is for the trueOS team. Built with https://github.com/jakobhoeg/shadcn-
 
 **Push Access**: Only the repository owner can push directly to this repository. All other contributors should fork and create pull requests.
 
-**Safety**: A git pre-push hook requires human confirmation before any push. Automated agents cannot push without explicit approval.
-
 ## Setup
 
 See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed setup instructions.
