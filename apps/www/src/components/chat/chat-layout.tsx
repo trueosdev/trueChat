@@ -149,6 +149,7 @@ export function ChatLayout({
                 name: conv.other_user.fullname || conv.other_user.username || "Unknown",
                 message: conv.last_message.content,
                 timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
+                avatar: conv.other_user.avatar_url || "",
               }] : [],
               avatar: conv.other_user.avatar_url || "",
               variant: selectedConversationId === conv.id ? "secondary" : "ghost",
