@@ -30,7 +30,7 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const addMessage = useChatStore((state) => state.addMessage);
-  const [isLoading, setSelectedLoading] = useState(false);
+  const [selectedLoading, setSelectedLoading] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
