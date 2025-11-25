@@ -5,12 +5,19 @@ node_modules
 .pnp
 .pnp.js
 
-# Local env files
+# Local env files (SAFETY: Never commit secrets!)
 .env
+.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+*.env.local
+apps/*/.env.local
+apps/*/.env
+packages/*/.env.local
+packages/*/.env
 
 # Testing
 coverage
@@ -36,3 +43,49 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Safety: Secrets and credentials
+*.key
+*.pem
+*.cert
+*.crt
+secrets/
+.secrets/
+*.secret
+credentials.json
+service-account*.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS files
+Thumbs.db
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
