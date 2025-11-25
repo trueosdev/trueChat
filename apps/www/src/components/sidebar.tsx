@@ -25,6 +25,7 @@ interface SidebarProps {
   onClick?: () => void;
   isMobile: boolean;
   onChatSelect?: (conversationId: string) => void;
+  onNewChat?: () => void;
 }
 
 export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat }: SidebarProps) {

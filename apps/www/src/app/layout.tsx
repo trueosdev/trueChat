@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { cookies } from "next/headers";
-import Examples from "@/components/examples";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { AuthProvider } from "@/components/auth/auth-provider";

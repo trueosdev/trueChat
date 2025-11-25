@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client'
-import type { Conversation, ConversationWithUser } from '@/app/data'
+import type { Conversation } from '@/lib/types/supabase'
+import type { ConversationWithUser } from '@/app/data'
 
 export async function getConversations(userId: string): Promise<ConversationWithUser[]> {
   const { data, error } = await supabase
