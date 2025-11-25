@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -15,6 +16,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.freepik.com',
+        port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
         port: ''
       }
     ]

@@ -1,0 +1,14 @@
+[build]
+  base = "."
+  command = "npm install && cd apps/www && npm run build"
+  publish = "apps/www/.next"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  node_bundler = "esbuild"
+
