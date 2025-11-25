@@ -89,3 +89,6 @@ next-env.d.ts
 *.temp
 .cache/
 .temp/
+
+# Git hooks (keep local, don't commit)
+# Note: .git/hooks/ is already ignored by git by default
