@@ -279,7 +279,7 @@ export async function getUnreadMessageCount(
   userId: string
 ): Promise<number> {
   try {
-    const { data, error } = await supabase
+    const { count, error } = await supabase
       .from('messages')
       .select('id', { count: 'exact', head: true })
       .eq('conversation_id', conversationId)
@@ -291,7 +291,7 @@ export async function getUnreadMessageCount(
       return 0
     }
 
-    return data || 0
+    return count || 0
   } catch (error) {
     console.error('Error getting unread count:', error)
     return 0
