@@ -5,6 +5,7 @@ export async function signUp(email: string, password: string, username: string, 
     email,
     password,
     options: {
+      emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
       data: {
         username,
         fullname: fullname || '',
