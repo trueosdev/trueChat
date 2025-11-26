@@ -22,6 +22,7 @@ import useChatStore from "@/hooks/useChatStore";
 import { uploadAttachment, type AttachmentData, formatFileSize } from "@/lib/services/attachments";
 import { broadcastTyping } from "@/lib/services/presence";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { FilePreview } from "./file-preview";
 
 interface ChatBottombarProps {
   conversationId: string;
@@ -39,6 +40,7 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
   const addMessage = useChatStore((state) => state.addMessage);
   const [selectedLoading, setSelectedLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -84,10 +86,22 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
     }
     
     setSelectedFile(file);
+    
+    // Create preview URL for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreviewUrl(null);
+    }
   };
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
+    setFilePreviewUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -195,26 +209,12 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
       
       {/* File preview */}
       {selectedFile && (
-        <div className="absolute bottom-full left-2 right-2 mb-2 p-3 bg-muted rounded-lg flex items-center justify-between shadow-lg border border-border">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-medium truncate">{selectedFile.name}</span>
-              <span className="text-xs text-muted-foreground">
-                {formatFileSize(selectedFile.size)}
-              </span>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleRemoveFile}
-            className="h-6 w-6 shrink-0"
-            disabled={selectedLoading || uploading}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <FilePreview
+          file={selectedFile}
+          previewUrl={filePreviewUrl}
+          onRemove={handleRemoveFile}
+          disabled={selectedLoading || uploading}
+        />
       )}
       
       <div className="flex">

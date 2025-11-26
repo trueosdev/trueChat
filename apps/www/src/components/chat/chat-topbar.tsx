@@ -58,20 +58,6 @@ export default function ChatTopbar({ conversation }: ChatTopbarProps) {
         </div>
       </div>
 
-      <div className="flex gap-1">
-        {TopbarIcons.map((icon, index) => (
-          <Link
-            key={index}
-            href="#"
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "icon" }),
-              "h-9 w-9",
-            )}
-          >
-            <icon.icon size={20} className="text-muted-foreground" />
-          </Link>
-        ))}
-      </div>
     </ExpandableChatHeader>
   );
 }

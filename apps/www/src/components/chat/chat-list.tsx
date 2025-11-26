@@ -79,35 +79,51 @@ export function ChatList({
                   <ChatBubbleMessage isLoading={message.isLoading}>
                     {/* Attachment preview */}
                     {message.attachment_url && (
-                      <div className="mb-2">
+                      <div className="mb-2 not-prose">
                         {isImageFile(message.attachment_type || '') ? (
                           <a 
                             href={message.attachment_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="block"
+                            className="block group relative overflow-hidden rounded-xl max-w-sm"
                           >
-                            <img
-                              src={message.attachment_url}
-                              alt={message.attachment_name || 'Attachment'}
-                              className="max-w-xs rounded-lg hover:opacity-90 transition-opacity"
-                            />
+                            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-1">
+                              <img
+                                src={message.attachment_url}
+                                alt={message.attachment_name || 'Image attachment'}
+                                className="rounded-lg w-full h-auto object-contain shadow-sm group-hover:scale-105 transition-transform duration-200"
+                                style={{ maxHeight: '400px' }}
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors rounded-lg" />
+                            </div>
+                            {message.attachment_name && (
+                              <div className="absolute bottom-2 left-2 right-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="truncate block">{message.attachment_name}</span>
+                              </div>
+                            )}
                           </a>
                         ) : (
                           <a
                             href={message.attachment_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 p-2 bg-muted rounded-lg hover:bg-muted/80 transition-colors"
+                            className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 group max-w-sm"
                           >
-                            <Download className="h-4 w-4" />
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium">
+                            <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                              <Download className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                            </div>
+                            <div className="flex flex-col flex-1 min-w-0">
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                                 {message.attachment_name}
                               </span>
-                              <span className="text-xs text-muted-foreground">
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
                                 {formatFileSize(message.attachment_size || 0)}
                               </span>
+                            </div>
+                            <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
                             </div>
                           </a>
                         )}
@@ -148,16 +164,7 @@ export function ChatList({
               exit={{ opacity: 0, y: 10 }}
               className="flex flex-col gap-2 p-4"
             >
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="flex gap-1">
-                  <span className="animate-bounce" style={{ animationDelay: '0ms' }}>●</span>
-                  <span className="animate-bounce" style={{ animationDelay: '150ms' }}>●</span>
-                  <span className="animate-bounce" style={{ animationDelay: '300ms' }}>●</span>
-                </div>
-                <span>
-                  {typingUsers.map(u => u.username).join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
-                </span>
-              </div>
+
             </motion.div>
           )}
         </AnimatePresence>
