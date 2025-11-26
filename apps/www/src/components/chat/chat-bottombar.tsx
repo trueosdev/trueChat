@@ -110,19 +110,20 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
     setSelectedLoading(true);
     
     try {
-      let attachment: AttachmentData | undefined;
+      let attachment: AttachmentData | undefined = undefined;
       
       // Upload file if selected
       if (selectedFile) {
         setUploading(true);
-        attachment = await uploadAttachment(user.id, selectedFile);
+        const uploadResult = await uploadAttachment(user.id, selectedFile);
         setUploading(false);
         
-        if (!attachment) {
+        if (!uploadResult) {
           alert('Failed to upload file');
           setSelectedLoading(false);
           return;
         }
+        attachment = uploadResult;
       }
       
       const sentMessage = await sendMessage(

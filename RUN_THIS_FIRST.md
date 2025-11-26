@@ -16,13 +16,6 @@ You need to run the database migration to add the new columns and storage bucket
 5. Click **Run** button
 6. You should see: ✅ Success. No rows returned
 
-### Option B: Supabase CLI
-
-```bash
-cd /Users/jacklyons/Documents/trueChat
-supabase db push
-```
-
 ---
 
 ## Step 2: Verify the Migration

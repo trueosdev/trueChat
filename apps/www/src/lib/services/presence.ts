@@ -30,7 +30,7 @@ export function subscribeToUserPresence(
 
   channel
     .on('presence', { event: 'sync' }, () => {
-      const presenceState = channel.presenceState()
+      const presenceState = channel.presenceState() as Record<string, UserPresence[]>
       callback(presenceState)
     })
     .subscribe(async (status) => {
@@ -67,11 +67,11 @@ export function subscribeToTypingIndicator(
 
   channel
     .on('presence', { event: 'sync' }, () => {
-      const presenceState = channel.presenceState()
+      const presenceState = channel.presenceState() as Record<string, TypingState[]>
       const typingUsers: TypingState[] = []
       
       Object.keys(presenceState).forEach((key) => {
-        const presences = presenceState[key] as TypingState[]
+        const presences = presenceState[key]
         presences.forEach((presence) => {
           // Don't include current user
           if (presence.user_id !== currentUserId && presence.typing) {

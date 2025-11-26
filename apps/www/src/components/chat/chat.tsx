@@ -40,12 +40,9 @@ export function Chat({ conversation, isMobile }: ChatProps) {
     // Subscribe to real-time message updates
     const unsubscribe = subscribeToMessages(conversation.id, (message) => {
       // Check if message exists (for updates like read receipts)
-      const exists = messages.find(m => m.id === message.id);
-      if (exists) {
-        updateMessage(message.id as string, message);
-      } else {
-        addMessage(message);
-      }
+      // Use functional update to get current messages
+      addMessage(message); // The store already handles duplicates
+      
       // Mark new messages as read if they're from other user
       if (message.sender_id !== user.id) {
         markMessagesAsRead(conversation.id, user.id);
@@ -68,7 +65,8 @@ export function Chat({ conversation, isMobile }: ChatProps) {
         channel.unsubscribe();
       }
     };
-  }, [conversation.id, user, setMessages, addMessage, updateMessage, setLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation.id, user?.id]);
 
   return (
     <div className="flex flex-col justify-between w-full h-full">
