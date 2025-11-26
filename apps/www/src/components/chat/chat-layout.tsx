@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -15,6 +15,7 @@ import { getConversations, subscribeToConversations } from "@/lib/services/conve
 import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
 import { NewChatDialog } from "../new-chat-dialog";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -38,6 +39,7 @@ export function ChatLayout({
   const updateConversation = useChatStore((state) => state.updateConversation);
   const setSelectedConversationId = useChatStore((state) => state.setSelectedConversationId);
   const setLoading = useChatStore((state) => state.setLoading);
+  const sidebarPanelRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
     const checkScreenWidth = () => {
@@ -103,6 +105,17 @@ export function ChatLayout({
     }
   };
 
+  const handleDoubleClick = () => {
+    const panel = sidebarPanelRef.current;
+    if (!panel) return;
+
+    if (isCollapsed) {
+      panel.expand();
+    } else {
+      panel.collapse();
+    }
+  };
+
   return (
     <ProtectedRoute>
       <NewChatDialog
@@ -120,6 +133,7 @@ export function ChatLayout({
         className="h-full items-stretch"
       >
         <ResizablePanel
+          ref={sidebarPanelRef}
           defaultSize={defaultLayout[0]}
           collapsedSize={navCollapsedSize}
           collapsible={true}
@@ -165,7 +179,7 @@ export function ChatLayout({
             onNewChat={() => setNewChatOpen(true)}
           />
         </ResizablePanel>
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle onDoubleClick={handleDoubleClick} />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
           {selectedConversation ? (
             <Chat
