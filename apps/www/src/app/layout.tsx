@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Questrial } from "next/font/google";
 import "./globals.css";
 import "@shadcn-chat/ui/styles.css";
 import Link from "next/link";
@@ -10,6 +10,12 @@ import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { AuthProvider } from "@/components/auth/auth-provider";
+
+const questrial = Questrial({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "trueChat",
@@ -33,7 +39,7 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={GeistSans.className}>
+      <body className={questrial.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
