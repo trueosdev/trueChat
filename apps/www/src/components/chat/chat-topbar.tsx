@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import { subscribeToPresence, type UserPresence } from "@/lib/services/presence";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatTopbarProps {
   conversation: ConversationWithUser;
@@ -15,13 +16,16 @@ interface ChatTopbarProps {
 export const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
 
 export default function ChatTopbar({ conversation }: ChatTopbarProps) {
+  const { user } = useAuth();
   const otherUser = conversation.other_user;
   const displayName = otherUser.fullname || otherUser.username || otherUser.email || "Unknown";
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    // Listen to all users' presence
-    const channel = subscribeToPresence((presences) => {
+    if (!user) return;
+
+    // Subscribe to presence (tracks our presence and listens to others)
+    const channel = subscribeToPresence(user.id, (presences) => {
       // Check if the other user is online
       const userPresence = presences[otherUser.id];
       setIsOnline(!!userPresence && userPresence.length > 0);
@@ -30,7 +34,7 @@ export default function ChatTopbar({ conversation }: ChatTopbarProps) {
     return () => {
       channel.unsubscribe();
     };
-  }, [otherUser.id]);
+  }, [user, otherUser.id]);
 
   return (
     <ExpandableChatHeader>

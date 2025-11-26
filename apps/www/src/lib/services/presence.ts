@@ -16,9 +16,10 @@ export interface TypingState {
   typing: boolean
 }
 
-// Track the CURRENT user's own presence
-export function trackOwnPresence(
+// Subscribe to presence - tracks your own presence and listens to others
+export function subscribeToPresence(
   currentUserId: string,
+  callback: (presences: Record<string, UserPresence[]>) => void
 ): RealtimeChannel {
   const channel = supabase.channel('online-users', {
     config: {
@@ -28,36 +29,36 @@ export function trackOwnPresence(
     },
   })
 
-  channel.subscribe(async (status) => {
-    if (status === 'SUBSCRIBED') {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        await channel.track({
-          user_id: currentUserId,
-          online_at: new Date().toISOString(),
-          username: user.user_metadata?.username,
-          fullname: user.user_metadata?.fullname,
-          avatar_url: user.user_metadata?.avatar_url,
-        })
-      }
-    }
-  })
-
-  return channel
-}
-
-// Listen to ALL users' presence (just observe, don't track)
-export function subscribeToPresence(
-  callback: (presences: Record<string, UserPresence[]>) => void
-): RealtimeChannel {
-  const channel = supabase.channel('online-users')
-
   channel
     .on('presence', { event: 'sync' }, () => {
       const presenceState = channel.presenceState() as Record<string, UserPresence[]>
+      console.log('👥 Presence updated:', presenceState)
+      console.log('👥 Online users count:', Object.keys(presenceState).length)
       callback(presenceState)
     })
-    .subscribe()
+    .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      console.log('✅ User joined:', key, newPresences)
+    })
+    .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      console.log('❌ User left:', key, leftPresences)
+    })
+    .subscribe(async (status) => {
+      console.log('🟢 Presence channel status:', status)
+      if (status === 'SUBSCRIBED') {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          const presenceData = {
+            user_id: currentUserId,
+            online_at: new Date().toISOString(),
+            username: user.user_metadata?.username,
+            fullname: user.user_metadata?.fullname,
+            avatar_url: user.user_metadata?.avatar_url,
+          }
+          console.log('📡 Broadcasting presence:', presenceData)
+          await channel.track(presenceData)
+        }
+      }
+    })
 
   return channel
 }

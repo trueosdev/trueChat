@@ -21,6 +21,13 @@ if (!isConfigured) {
 // This allows the app to compile but operations will fail at runtime if not configured
 export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+  supabaseAnonKey || 'placeholder-key',
+  {
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+  }
 )
 
