@@ -107,20 +107,20 @@ export function ChatList({
                             href={message.attachment_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 group max-w-sm"
+                            className="flex items-center gap-3 p-4 bg-gradient-to-r from-gray-700 to-gray-800 dark:from-gray-800 dark:to-gray-900 border border-gray-600 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 group max-w-sm"
                           >
-                            <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
-                              <Download className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                            <div className="flex items-center justify-center w-10 h-10 bg-gray-600 dark:bg-gray-700 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                              <Download className="h-5 w-5 text-gray-300" />
                             </div>
                             <div className="flex flex-col flex-1 min-w-0">
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                              <span className="text-sm font-medium text-white truncate">
                                 {message.attachment_name}
                               </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                              <span className="text-xs text-gray-300">
                                 {formatFileSize(message.attachment_size || 0)}
                               </span>
                             </div>
-                            <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                            <div className="text-gray-400 group-hover:text-gray-300 transition-colors">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
