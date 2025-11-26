@@ -1,20 +1,16 @@
 import {
   FileImage,
-  Mic,
   Paperclip,
-  PlusCircle,
   SendHorizontal,
   ThumbsUp,
   X,
   Loader2,
 } from "lucide-react";
-import Link from "next/link";
 import React, { useRef, useState } from "react";
 import { Button, buttonVariants } from "../ui/button";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import { EmojiPicker } from "../emoji-picker";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { ChatInput } from "@shadcn-chat/ui";
 import { sendMessage } from "@/lib/services/messages";
 import { useAuth } from "@/hooks/useAuth";
@@ -218,79 +214,20 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
       )}
       
       <div className="flex">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "h-9 w-9",
-                "shrink-0",
-              )}
-            >
-              <PlusCircle size={22} className="text-muted-foreground" />
-            </Link>
-          </PopoverTrigger>
-          <PopoverContent side="top" className="w-full p-2">
-            {message.trim() || isMobile ? (
-              <div className="flex gap-2">
-                <Link
-                  href="#"
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "icon" }),
-                    "h-9 w-9",
-                    "shrink-0",
-                  )}
-                >
-                  <Mic size={22} className="text-muted-foreground" />
-                </Link>
-                {BottombarIcons.map((icon, index) => (
-                  <button
-                    key={index}
-                    onClick={() => fileInputRef.current?.click()}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "icon" }),
-                      "h-9 w-9",
-                      "shrink-0",
-                    )}
-                    disabled={selectedLoading || uploading}
-                  >
-                    <icon.icon size={22} className="text-muted-foreground" />
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <Link
-                href="#"
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                  "h-9 w-9",
-                  "shrink-0",
-                )}
-              >
-                <Mic size={22} className="text-muted-foreground" />
-              </Link>
+        {BottombarIcons.map((icon, index) => (
+          <button
+            key={index}
+            onClick={() => fileInputRef.current?.click()}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "h-9 w-9",
+              "shrink-0",
             )}
-          </PopoverContent>
-        </Popover>
-        {!message.trim() && !isMobile && (
-          <div className="flex">
-            {BottombarIcons.map((icon, index) => (
-              <button
-                key={index}
-                onClick={() => fileInputRef.current?.click()}
-                className={cn(
-                  buttonVariants({ variant: "ghost", size: "icon" }),
-                  "h-9 w-9",
-                  "shrink-0",
-                )}
-                disabled={selectedLoading || uploading}
-              >
-                <icon.icon size={22} className="text-muted-foreground" />
-              </button>
-            ))}
-          </div>
-        )}
+            disabled={selectedLoading || uploading}
+          >
+            <icon.icon size={22} className="text-muted-foreground" />
+          </button>
+        ))}
       </div>
 
       <AnimatePresence initial={false}>

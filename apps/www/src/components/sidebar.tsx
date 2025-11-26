@@ -39,10 +39,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
     >
       {!isCollapsed && (
         <div className="flex justify-between p-2 items-center">
-          <div className="flex gap-2 items-center text-2xl">
-            <p className="font-medium">Chats</p>
-            <span className="text-black dark:text-white">({chats.length})</span>
-          </div>
+
 
           <div className="flex items-center">
             <UserAvatarMenu />
