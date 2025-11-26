@@ -45,9 +45,9 @@ export function ChatList({
     if (message.sender_id !== user?.id) return null;
     
     if (message.read_at) {
-      return <CheckCheck className="inline h-3 w-3 ml-1 text-blue-500" />;
+      return <CheckCheck className="inline h-3 w-3 ml-1 text-foreground opacity-100" />;
     }
-    return <Check className="inline h-3 w-3 ml-1 text-gray-400" />;
+    return <Check className="inline h-3 w-3 ml-1 text-foreground opacity-40" />;
   };
 
   return (
@@ -87,7 +87,7 @@ export function ChatList({
                             rel="noopener noreferrer"
                             className="block group relative overflow-hidden rounded-xl max-w-sm"
                           >
-                            <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-1">
+                            <div className="relative bg-gradient-to-br from-black/3 to-black/5 dark:from-white/5 dark:to-white/10 p-1">
                               <img
                                 src={message.attachment_url}
                                 alt={message.attachment_name || 'Image attachment'}
@@ -107,20 +107,20 @@ export function ChatList({
                             href={message.attachment_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-3 p-4 bg-gradient-to-r from-gray-700 to-gray-800 dark:from-gray-800 dark:to-gray-900 border border-gray-600 dark:border-gray-700 rounded-xl hover:shadow-md transition-all duration-200 group max-w-sm"
+                            className="flex items-center gap-3 p-4 bg-gradient-to-r from-black/80 to-black/90 dark:from-white/5 dark:to-white/10 border border-black/60 dark:border-white/20 rounded-xl hover:shadow-md transition-all duration-200 group max-w-sm"
                           >
-                            <div className="flex items-center justify-center w-10 h-10 bg-gray-600 dark:bg-gray-700 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
-                              <Download className="h-5 w-5 text-gray-300" />
+                            <div className="flex items-center justify-center w-10 h-10 bg-black/70 dark:bg-white/10 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                              <Download className="h-5 w-5 text-white/90 dark:text-white/70" />
                             </div>
                             <div className="flex flex-col flex-1 min-w-0">
                               <span className="text-sm font-medium text-white truncate">
                                 {message.attachment_name}
                               </span>
-                              <span className="text-xs text-gray-300">
+                              <span className="text-xs text-white/70">
                                 {formatFileSize(message.attachment_size || 0)}
                               </span>
                             </div>
-                            <div className="text-gray-400 group-hover:text-gray-300 transition-colors">
+                            <div className="text-white/50 group-hover:text-white/70 transition-colors">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>

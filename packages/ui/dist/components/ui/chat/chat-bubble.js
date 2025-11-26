@@ -34,8 +34,8 @@ const ChatBubbleAvatar = ({ src, fallback, className, }) => (_jsxs(Avatar, { cla
 const chatBubbleMessageVariants = cva("p-4", {
     variants: {
         variant: {
-            received: "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-r-lg rounded-tl-lg",
-            sent: "bg-gray-800 dark:bg-gray-900 text-white rounded-l-lg rounded-tr-lg",
+            received: "bg-black/5 dark:bg-white/10 text-foreground rounded-r-lg rounded-tl-lg",
+            sent: "bg-black/90 dark:bg-white/5 text-white dark:text-foreground rounded-l-lg rounded-tr-lg",
         },
         layout: {
             default: "",

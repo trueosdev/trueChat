@@ -11,11 +11,11 @@ interface FilePreviewProps {
 
 export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePreviewProps) {
   return (
-    <div className="absolute bottom-full left-2 right-2 mb-2 bg-white dark:bg-gray-950 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 overflow-hidden animate-in slide-in-from-bottom-2">
+    <div className="absolute bottom-full left-2 right-2 mb-2 bg-white dark:bg-black rounded-xl shadow-xl border border-black/20 dark:border-white/20 overflow-hidden animate-in slide-in-from-bottom-2">
       {previewUrl ? (
         // Image preview
         <div className="relative">
-          <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
+          <div className="relative bg-gradient-to-br from-black/3 to-black/5 dark:from-white/5 dark:to-white/10 p-4">
             <img
               src={previewUrl}
               alt={file.name}
@@ -23,12 +23,12 @@ export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePrevie
               style={{ maxHeight: '200px' }}
             />
           </div>
-          <div className="p-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between">
+          <div className="p-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between">
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-medium truncate text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium truncate text-foreground">
                 {file.name}
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-foreground/50">
                 {formatFileSize(file.size)}
               </span>
             </div>
@@ -47,14 +47,14 @@ export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePrevie
         // File preview (non-image)
         <div className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 dark:from-gray-700 dark:to-gray-800 rounded-lg shadow-sm">
-              <Paperclip className="h-5 w-5 text-white" />
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-black/70 to-black/80 dark:from-white/10 dark:to-white/15 rounded-lg shadow-sm">
+              <Paperclip className="h-5 w-5 text-white dark:text-white/90" />
             </div>
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-medium truncate text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium truncate text-foreground">
                 {file.name}
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-foreground/50">
                 {formatFileSize(file.size)}
               </span>
             </div>
