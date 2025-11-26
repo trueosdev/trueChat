@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* React Image Crop Styles */
+@import 'react-image-crop/dist/ReactCrop.css';
+
 
 @layer base {
   :root {
@@ -103,4 +106,23 @@
   75%   {inset:0    0    35px 35px}
   87.5% {inset:0    0    35px 0   }
   100%  {inset:0    35px 35px 0   }
+}
+
+/* React Image Crop Custom Styles */
+.ReactCrop__crop-selection {
+  border: 2px solid rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark .ReactCrop__crop-selection {
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+.ReactCrop__drag-handle {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.8) !important;
+}
+
+.dark .ReactCrop__drag-handle {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
 }

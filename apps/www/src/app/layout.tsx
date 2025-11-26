@@ -32,7 +32,7 @@ export default function RootLayout({
   const defaultLayout = layout ? JSON.parse(layout.value) : undefined;
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>

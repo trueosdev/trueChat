@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client'
 import type { Message } from '@/app/data'
+import type { AttachmentData } from './attachments'
 
 export interface MessageWithUser extends Message {
   id: string
@@ -7,6 +8,11 @@ export interface MessageWithUser extends Message {
   conversation_id: string
   content: string
   created_at: string
+  read_at?: string | null
+  attachment_url?: string | null
+  attachment_type?: string | null
+  attachment_name?: string | null
+  attachment_size?: number | null
   sender: {
     id: string
     username: string | null
@@ -50,6 +56,11 @@ export async function getMessages(conversationId: string): Promise<MessageWithUs
       conversation_id: msg.conversation_id,
       content: msg.content,
       created_at: msg.created_at,
+      read_at: msg.read_at,
+      attachment_url: msg.attachment_url,
+      attachment_type: msg.attachment_type,
+      attachment_name: msg.attachment_name,
+      attachment_size: msg.attachment_size,
       message: msg.content,
       timestamp: new Date(msg.created_at).toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -71,15 +82,25 @@ export async function getMessages(conversationId: string): Promise<MessageWithUs
 export async function sendMessage(
   conversationId: string,
   content: string,
-  senderId: string
+  senderId: string,
+  attachment?: AttachmentData
 ): Promise<MessageWithUser | null> {
+  const messageData: any = {
+    conversation_id: conversationId,
+    content: content.trim(),
+    sender_id: senderId,
+  }
+
+  if (attachment) {
+    messageData.attachment_url = attachment.url
+    messageData.attachment_type = attachment.type
+    messageData.attachment_name = attachment.name
+    messageData.attachment_size = attachment.size
+  }
+
   const { data, error } = await supabase
     .from('messages')
-    .insert({
-      conversation_id: conversationId,
-      content: content.trim(),
-      sender_id: senderId,
-    })
+    .insert(messageData)
     .select('*')
     .single()
 
@@ -108,6 +129,11 @@ export async function sendMessage(
     conversation_id: data.conversation_id,
     content: data.content,
     created_at: data.created_at,
+    read_at: data.read_at,
+    attachment_url: data.attachment_url,
+    attachment_type: data.attachment_type,
+    attachment_name: data.attachment_name,
+    attachment_size: data.attachment_size,
     message: data.content,
     timestamp: new Date(data.created_at).toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -153,6 +179,55 @@ export function subscribeToMessages(
           conversation_id: msg.conversation_id,
           content: msg.content,
           created_at: msg.created_at,
+          read_at: msg.read_at,
+          attachment_url: msg.attachment_url,
+          attachment_type: msg.attachment_type,
+          attachment_name: msg.attachment_name,
+          attachment_size: msg.attachment_size,
+          message: msg.content,
+          timestamp: new Date(msg.created_at).toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+          }),
+          name: sender?.fullname || sender?.username || 'Unknown',
+          avatar: sender?.avatar_url || '',
+          sender: {
+            id: sender?.id || msg.sender_id,
+            username: sender?.username || null,
+            fullname: sender?.fullname || null,
+            avatar_url: sender?.avatar_url || null,
+          },
+        })
+      }
+    )
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `conversation_id=eq.${conversationId}`,
+      },
+      async (payload) => {
+        const msg = payload.new as any
+        const { data: sender } = await supabase
+          .from('users')
+          .select('id, username, fullname, avatar_url')
+          .eq('id', msg.sender_id)
+          .single()
+
+        callback({
+          id: msg.id,
+          sender_id: msg.sender_id,
+          conversation_id: msg.conversation_id,
+          content: msg.content,
+          created_at: msg.created_at,
+          read_at: msg.read_at,
+          attachment_url: msg.attachment_url,
+          attachment_type: msg.attachment_type,
+          attachment_name: msg.attachment_name,
+          attachment_size: msg.attachment_size,
           message: msg.content,
           timestamp: new Date(msg.created_at).toLocaleTimeString('en-US', {
             hour: 'numeric',
@@ -174,6 +249,28 @@ export function subscribeToMessages(
 
   return () => {
     supabase.removeChannel(channel)
+  }
+}
+
+export async function markMessagesAsRead(
+  conversationId: string,
+  userId: string
+): Promise<boolean> {
+  try {
+    const { error } = await supabase.rpc('mark_messages_as_read', {
+      p_conversation_id: conversationId,
+      p_user_id: userId,
+    })
+
+    if (error) {
+      console.error('Error marking messages as read:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error marking messages as read:', error)
+    return false
   }
 }
 

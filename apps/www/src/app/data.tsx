@@ -164,6 +164,11 @@ export interface Message {
   sender_id?: string;
   conversation_id?: string;
   created_at?: string;
+  read_at?: string | null;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
+  attachment_size?: number | null;
 }
 
 export interface User {

@@ -5,6 +5,8 @@ import {
   PlusCircle,
   SendHorizontal,
   ThumbsUp,
+  X,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import React, { useRef, useState } from "react";
@@ -17,23 +19,78 @@ import { ChatInput } from "@shadcn-chat/ui";
 import { sendMessage } from "@/lib/services/messages";
 import { useAuth } from "@/hooks/useAuth";
 import useChatStore from "@/hooks/useChatStore";
+import { uploadAttachment, type AttachmentData, formatFileSize } from "@/lib/services/attachments";
+import { broadcastTyping } from "@/lib/services/presence";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 interface ChatBottombarProps {
   conversationId: string;
   isMobile: boolean;
+  typingChannel: RealtimeChannel | null;
 }
 
 export const BottombarIcons = [{ icon: FileImage }, { icon: Paperclip }];
 
-export default function ChatBottombar({ conversationId, isMobile }: ChatBottombarProps) {
+export default function ChatBottombar({ conversationId, isMobile, typingChannel }: ChatBottombarProps) {
   const { user } = useAuth();
   const [message, setMessage] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const addMessage = useChatStore((state) => state.addMessage);
   const [selectedLoading, setSelectedLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
+    
+    // Broadcast typing indicator
+    if (user && typingChannel) {
+      broadcastTyping(
+        typingChannel, 
+        user.id, 
+        conversationId, 
+        true, 
+        user.user_metadata?.username || user.user_metadata?.fullname
+      );
+      
+      // Clear typing after 3 seconds of no typing
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      typingTimeoutRef.current = setTimeout(() => {
+        if (typingChannel) {
+          broadcastTyping(
+            typingChannel, 
+            user.id, 
+            conversationId, 
+            false, 
+            user.user_metadata?.username || user.user_metadata?.fullname
+          );
+        }
+      }, 3000);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size must be less than 10MB');
+      return;
+    }
+    
+    setSelectedFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleThumbsUp = async () => {
@@ -48,15 +105,63 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
   };
 
   const handleSend = async () => {
-    if (!message.trim() || !user || !conversationId) return;
+    if ((!message.trim() && !selectedFile) || !user || !conversationId) return;
     
     setSelectedLoading(true);
-    const sentMessage = await sendMessage(conversationId, message.trim(), user.id);
-    if (sentMessage) {
-      addMessage(sentMessage);
-      setMessage("");
+    
+    try {
+      let attachment: AttachmentData | undefined;
+      
+      // Upload file if selected
+      if (selectedFile) {
+        setUploading(true);
+        attachment = await uploadAttachment(user.id, selectedFile);
+        setUploading(false);
+        
+        if (!attachment) {
+          alert('Failed to upload file');
+          setSelectedLoading(false);
+          return;
+        }
+      }
+      
+      const sentMessage = await sendMessage(
+        conversationId, 
+        message.trim() || ' ',  // Space if only attachment
+        user.id,
+        attachment
+      );
+      
+      if (sentMessage) {
+        addMessage(sentMessage);
+        setMessage("");
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        
+        // Stop typing indicator
+        if (typingChannel) {
+          broadcastTyping(
+            typingChannel, 
+            user.id, 
+            conversationId, 
+            false, 
+            user.user_metadata?.username || user.user_metadata?.fullname
+          );
+        }
+        
+        // Clear timeout
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setSelectedLoading(false);
+      setUploading(false);
     }
-    setSelectedLoading(false);
 
     if (inputRef.current) {
       inputRef.current.focus();
@@ -76,7 +181,41 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
   };
 
   return (
-    <div className="px-2 py-4 flex justify-between w-full items-center gap-2">
+    <div className="px-2 py-4 flex justify-between w-full items-center gap-2 relative">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+        onChange={handleFileSelect}
+        className="hidden"
+        disabled={selectedLoading || uploading}
+      />
+      
+      {/* File preview */}
+      {selectedFile && (
+        <div className="absolute bottom-full left-2 right-2 mb-2 p-3 bg-muted rounded-lg flex items-center justify-between shadow-lg border border-border">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Paperclip className="h-4 w-4 text-muted-foreground shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium truncate">{selectedFile.name}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatFileSize(selectedFile.size)}
+              </span>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleRemoveFile}
+            className="h-6 w-6 shrink-0"
+            disabled={selectedLoading || uploading}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      
       <div className="flex">
         <Popover>
           <PopoverTrigger asChild>
@@ -105,17 +244,18 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
                   <Mic size={22} className="text-muted-foreground" />
                 </Link>
                 {BottombarIcons.map((icon, index) => (
-                  <Link
+                  <button
                     key={index}
-                    href="#"
+                    onClick={() => fileInputRef.current?.click()}
                     className={cn(
                       buttonVariants({ variant: "ghost", size: "icon" }),
                       "h-9 w-9",
                       "shrink-0",
                     )}
+                    disabled={selectedLoading || uploading}
                   >
                     <icon.icon size={22} className="text-muted-foreground" />
-                  </Link>
+                  </button>
                 ))}
               </div>
             ) : (
@@ -135,17 +275,18 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
         {!message.trim() && !isMobile && (
           <div className="flex">
             {BottombarIcons.map((icon, index) => (
-              <Link
+              <button
                 key={index}
-                href="#"
+                onClick={() => fileInputRef.current?.click()}
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon" }),
                   "h-9 w-9",
                   "shrink-0",
                 )}
+                disabled={selectedLoading || uploading}
               >
                 <icon.icon size={22} className="text-muted-foreground" />
-              </Link>
+              </button>
             ))}
           </div>
         )}
@@ -187,15 +328,19 @@ export default function ChatBottombar({ conversationId, isMobile }: ChatBottomba
           </div>
         </motion.div>
 
-        {message.trim() ? (
+        {message.trim() || selectedFile ? (
           <Button
             className="h-9 w-9 shrink-0"
             onClick={handleSend}
-            disabled={selectedLoading}
+            disabled={selectedLoading || uploading}
             variant="ghost"
             size="icon"
           >
-            <SendHorizontal size={22} className="text-muted-foreground" />
+            {uploading ? (
+              <Loader2 size={22} className="text-muted-foreground animate-spin" />
+            ) : (
+              <SendHorizontal size={22} className="text-muted-foreground" />
+            )}
           </Button>
         ) : (
           <Button

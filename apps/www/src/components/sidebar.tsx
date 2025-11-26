@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Message } from "@/app/data";
+import { UserAvatarMenu } from "./user-avatar-menu";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -41,16 +42,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat 
             <span className="text-black dark:text-white">({chats.length})</span>
           </div>
 
-          <div>
-            <Link
-              href="#"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "h-9 w-9",
-              )}
-            >
-              <MoreHorizontal size={20} />
-            </Link>
+          <div className="flex items-center">
+            <UserAvatarMenu />
 
             <button
               onClick={onNewChat}

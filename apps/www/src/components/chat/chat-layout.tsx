@@ -64,7 +64,10 @@ export function ChatLayout({
 
     // Subscribe to real-time updates
     const unsubscribe = subscribeToConversations(user.id, (conversation) => {
-      const exists = conversations.find((c) => c.id === conversation.id);
+      // Use the store's state directly instead of the stale closure
+      const currentConversations = useChatStore.getState().conversations;
+      const exists = currentConversations.find((c) => c.id === conversation.id);
+      
       if (exists) {
         updateConversation(conversation.id, conversation);
       } else {
