@@ -16,38 +16,48 @@ export interface TypingState {
   typing: boolean
 }
 
-export function subscribeToUserPresence(
-  userId: string,
-  callback: (presences: Record<string, UserPresence[]>) => void
+// Track the CURRENT user's own presence
+export function trackOwnPresence(
+  currentUserId: string,
 ): RealtimeChannel {
   const channel = supabase.channel('online-users', {
     config: {
       presence: {
-        key: userId,
+        key: currentUserId,
       },
     },
   })
+
+  channel.subscribe(async (status) => {
+    if (status === 'SUBSCRIBED') {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await channel.track({
+          user_id: currentUserId,
+          online_at: new Date().toISOString(),
+          username: user.user_metadata?.username,
+          fullname: user.user_metadata?.fullname,
+          avatar_url: user.user_metadata?.avatar_url,
+        })
+      }
+    }
+  })
+
+  return channel
+}
+
+// Listen to ALL users' presence (just observe, don't track)
+export function subscribeToPresence(
+  callback: (presences: Record<string, UserPresence[]>) => void
+): RealtimeChannel {
+  const channel = supabase.channel('online-users')
 
   channel
     .on('presence', { event: 'sync' }, () => {
       const presenceState = channel.presenceState() as Record<string, UserPresence[]>
       callback(presenceState)
     })
-    .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        // Get current user info
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          await channel.track({
-            user_id: userId,
-            online_at: new Date().toISOString(),
-            username: user.user_metadata?.username,
-            fullname: user.user_metadata?.fullname,
-            avatar_url: user.user_metadata?.avatar_url,
-          })
-        }
-      }
-    })
+    .subscribe()
 
   return channel
 }

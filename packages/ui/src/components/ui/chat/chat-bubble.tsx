@@ -65,7 +65,7 @@ const ChatBubbleAvatar: React.FC<ChatBubbleAvatarProps> = ({
   fallback,
   className,
 }) => (
-  <Avatar className={className}>
+  <Avatar className={cn("h-9 w-9 shrink-0", className)}>
     <AvatarImage src={src} alt="Avatar" />
     <AvatarFallback>{fallback}</AvatarFallback>
   </Avatar>
@@ -107,7 +107,7 @@ const ChatBubbleMessage = React.forwardRef<
     <div
       className={cn(
         chatBubbleMessageVariants({ variant, layout, className }),
-        "break-words max-w-full whitespace-pre-wrap",
+        "break-words max-w-full whitespace-pre-wrap text-left",
       )}
       ref={ref}
       {...props}
@@ -135,7 +135,7 @@ const ChatBubbleTimestamp: React.FC<ChatBubbleTimestampProps> = ({
   className,
   ...props
 }) => (
-  <div className={cn("text-xs mt-2 text-right", className)} {...props}>
+  <div className={cn("text-xs mt-2 text-left", className)} {...props}>
     {timestamp}
   </div>
 );

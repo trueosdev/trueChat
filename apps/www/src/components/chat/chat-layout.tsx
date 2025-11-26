@@ -16,6 +16,7 @@ import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
 import { NewChatDialog } from "../new-chat-dialog";
 import type { ImperativePanelHandle } from "react-resizable-panels";
+import { trackOwnPresence } from "@/lib/services/presence";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -57,6 +58,9 @@ export function ChatLayout({
   useEffect(() => {
     if (!user) return;
 
+    // Track current user's own presence
+    const presenceChannel = trackOwnPresence(user.id);
+
     // Load conversations
     setLoading(true);
     getConversations(user.id).then((data) => {
@@ -78,6 +82,7 @@ export function ChatLayout({
     });
 
     return () => {
+      presenceChannel.unsubscribe();
       unsubscribe();
     };
   }, [user, setConversations, addConversation, updateConversation, setLoading]);

@@ -38,10 +38,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
       className="relative group flex flex-col h-full bg-muted/10 dark:bg-muted/20 gap-4 p-2 data-[collapsed=true]:p-2 "
     >
       {!isCollapsed && (
-        <div className="flex justify-between p-2 items-center">
-
-
-          <div className="flex items-center">
+        <div className="flex justify-between px-2 items-center text-left">
+          <div className="flex items-center gap-0">
             <UserAvatarMenu />
 
             <button
@@ -56,15 +54,15 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
           </div>
         </div>
       )}
-      <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+      <nav className="grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
         {loading ? (
           // Loading skeletons
           Array.from({ length: 5 }).map((_, index) => (
             isCollapsed ? (
-              <Skeleton key={index} className="h-11 w-11 md:h-16 md:w-16 rounded-full" />
+              <Skeleton key={index} className="h-9 w-9 rounded-full" />
             ) : (
-              <div key={index} className="flex items-center gap-4 p-3">
-                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+              <div key={index} className="flex items-center gap-3 px-2 py-3">
+                <Skeleton className="h-9 w-9 rounded-full shrink-0" />
                 <div className="flex flex-col gap-2 flex-1">
                   <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-3 w-32" />
@@ -82,20 +80,17 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                     onClick={() => onChatSelect?.(chat.id)}
                     className={cn(
                       buttonVariants({ variant: chat.variant, size: "icon" }),
-                      "h-11 w-11 md:h-16 md:w-16",
+                      "h-9 w-9",
                       chat.variant === "secondary" &&
                         "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
                     )}
                   >
-                    <Avatar className="flex justify-center items-center">
+                    <Avatar className="h-9 w-9">
                       <AvatarImage
                         src={chat.avatar}
                         alt={chat.avatar}
-                        width={6}
-                        height={6}
-                        className="w-10 h-10 "
                       />
-                    </Avatar>{" "}
+                    </Avatar>
                     <span className="sr-only">{chat.name}</span>
                   </button>
                 </TooltipTrigger>
@@ -115,22 +110,19 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                 buttonVariants({ variant: chat.variant, size: "xl" }),
                 chat.variant === "secondary" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink",
-                "justify-start gap-4",
+                "justify-start gap-3 px-2 py-3",
               )}
             >
-              <Avatar className="flex justify-center items-center">
+              <Avatar className="h-9 w-9 shrink-0">
                 <AvatarImage
                   src={chat.avatar}
                   alt={chat.avatar}
-                  width={6}
-                  height={6}
-                  className="w-10 h-10 "
                 />
               </Avatar>
-              <div className="flex flex-col max-w-28">
+              <div className="flex flex-col max-w-28 text-left">
                 <span>{chat.name}</span>
                 {chat.messages.length > 0 && (
-                  <span className="text-black dark:text-white text-xs truncate ">
+                  <span className="text-black dark:text-white text-xs truncate">
                     {chat.messages[chat.messages.length - 1].name.split(" ")[0]}
                     :{" "}
                     {chat.messages[chat.messages.length - 1].isLoading

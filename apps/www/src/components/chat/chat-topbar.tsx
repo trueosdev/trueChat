@@ -6,7 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
-import { subscribeToUserPresence, type UserPresence } from "@/lib/services/presence";
+import { subscribeToPresence, type UserPresence } from "@/lib/services/presence";
 
 interface ChatTopbarProps {
   conversation: ConversationWithUser;
@@ -20,8 +20,8 @@ export default function ChatTopbar({ conversation }: ChatTopbarProps) {
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
-    // Subscribe to user presence
-    const channel = subscribeToUserPresence(otherUser.id, (presences) => {
+    // Listen to all users' presence
+    const channel = subscribeToPresence((presences) => {
       // Check if the other user is online
       const userPresence = presences[otherUser.id];
       setIsOnline(!!userPresence && userPresence.length > 0);
@@ -34,23 +34,20 @@ export default function ChatTopbar({ conversation }: ChatTopbarProps) {
 
   return (
     <ExpandableChatHeader>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <div className="relative">
-          <Avatar className="flex justify-center items-center">
+          <Avatar className="h-9 w-9">
             <AvatarImage
               src={otherUser.avatar_url || ""}
               alt={displayName}
-              width={6}
-              height={6}
-              className="w-10 h-10 "
             />
           </Avatar>
           {/* Online status indicator */}
           {isOnline && (
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full" />
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
           )}
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col text-left">
           <span className="font-medium">{displayName}</span>
           <span className="text-xs text-muted-foreground">
             {isOnline ? 'Online' : 'Offline'}

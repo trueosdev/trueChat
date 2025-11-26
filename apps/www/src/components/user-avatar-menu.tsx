@@ -65,7 +65,7 @@ export function UserAvatarMenu() {
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full p-0">
             <Avatar className="h-9 w-9">
               <AvatarImage src={avatarUrl} alt={displayName} />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>

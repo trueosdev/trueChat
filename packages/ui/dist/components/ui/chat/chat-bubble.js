@@ -29,7 +29,7 @@ const ChatBubble = React.forwardRef(({ className, variant, layout, children, ...
         })
         : child) })));
 ChatBubble.displayName = "ChatBubble";
-const ChatBubbleAvatar = ({ src, fallback, className, }) => (_jsxs(Avatar, { className: className, children: [_jsx(AvatarImage, { src: src, alt: "Avatar" }), _jsx(AvatarFallback, { children: fallback })] }));
+const ChatBubbleAvatar = ({ src, fallback, className, }) => (_jsxs(Avatar, { className: cn("h-9 w-9 shrink-0", className), children: [_jsx(AvatarImage, { src: src, alt: "Avatar" }), _jsx(AvatarFallback, { children: fallback })] }));
 // ChatBubbleMessage
 const chatBubbleMessageVariants = cva("p-4", {
     variants: {
@@ -47,9 +47,9 @@ const chatBubbleMessageVariants = cva("p-4", {
         layout: "default",
     },
 });
-const ChatBubbleMessage = React.forwardRef(({ className, variant, layout, isLoading = false, children, ...props }, ref) => (_jsx("div", { className: cn(chatBubbleMessageVariants({ variant, layout, className }), "break-words max-w-full whitespace-pre-wrap"), ref: ref, ...props, children: isLoading ? (_jsx("div", { className: "flex items-center space-x-2", children: _jsx(MessageLoading, {}) })) : (children) })));
+const ChatBubbleMessage = React.forwardRef(({ className, variant, layout, isLoading = false, children, ...props }, ref) => (_jsx("div", { className: cn(chatBubbleMessageVariants({ variant, layout, className }), "break-words max-w-full whitespace-pre-wrap text-left"), ref: ref, ...props, children: isLoading ? (_jsx("div", { className: "flex items-center space-x-2", children: _jsx(MessageLoading, {}) })) : (children) })));
 ChatBubbleMessage.displayName = "ChatBubbleMessage";
-const ChatBubbleTimestamp = ({ timestamp, className, ...props }) => (_jsx("div", { className: cn("text-xs mt-2 text-right", className), ...props, children: timestamp }));
+const ChatBubbleTimestamp = ({ timestamp, className, ...props }) => (_jsx("div", { className: cn("text-xs mt-2 text-left", className), ...props, children: timestamp }));
 const ChatBubbleAction = ({ icon, onClick, className, variant = "ghost", size = "icon", ...props }) => (_jsx(Button, { variant: variant, size: size, className: className, onClick: onClick, ...props, children: icon }));
 const ChatBubbleActionWrapper = React.forwardRef(({ variant, className, children, ...props }, ref) => (_jsx("div", { ref: ref, className: cn("absolute top-1/2 -translate-y-1/2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200", variant === "sent"
         ? "-left-1 -translate-x-full flex-row-reverse"
