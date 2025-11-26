@@ -47,7 +47,7 @@ export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePrevie
         // File preview (non-image)
         <div className="p-3 flex items-center justify-between">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-sm">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 dark:from-gray-700 dark:to-gray-800 rounded-lg shadow-sm">
               <Paperclip className="h-5 w-5 text-white" />
             </div>
             <div className="flex flex-col min-w-0 flex-1">
