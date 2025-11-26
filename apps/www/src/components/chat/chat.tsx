@@ -34,7 +34,10 @@ export function Chat({ conversation, isMobile }: ChatProps) {
       setMessages(data);
       setLoading(false);
       // Mark messages as read when loading
-      markMessagesAsRead(conversation.id, user.id);
+      markMessagesAsRead(conversation.id, user.id).then(() => {
+        // Clear unread count in store
+        useChatStore.getState().setUnreadCount(conversation.id, 0);
+      });
     });
 
     // Subscribe to real-time message updates
@@ -45,7 +48,10 @@ export function Chat({ conversation, isMobile }: ChatProps) {
       
       // Mark new messages as read if they're from other user
       if (message.sender_id !== user.id) {
-        markMessagesAsRead(conversation.id, user.id);
+        markMessagesAsRead(conversation.id, user.id).then(() => {
+          // Clear unread count in store
+          useChatStore.getState().setUnreadCount(conversation.id, 0);
+        });
       }
     });
 

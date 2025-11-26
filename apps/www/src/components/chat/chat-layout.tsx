@@ -16,6 +16,7 @@ import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
 import { NewChatDialog } from "../new-chat-dialog";
 import type { ImperativePanelHandle } from "react-resizable-panels";
+import { getUnreadCounts, subscribeToMessages } from "@/lib/services/messages";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -39,6 +40,8 @@ export function ChatLayout({
   const updateConversation = useChatStore((state) => state.updateConversation);
   const setSelectedConversationId = useChatStore((state) => state.setSelectedConversationId);
   const setLoading = useChatStore((state) => state.setLoading);
+  const setUnreadCounts = useChatStore((state) => state.setUnreadCounts);
+  const setUnreadCount = useChatStore((state) => state.setUnreadCount);
   const sidebarPanelRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
@@ -59,9 +62,14 @@ export function ChatLayout({
 
     // Load conversations
     setLoading(true);
-    getConversations(user.id).then((data) => {
+    getConversations(user.id).then(async (data) => {
       setConversations(data);
       setLoading(false);
+      
+      // Load unread counts for all conversations
+      const conversationIds = data.map((c) => c.id);
+      const counts = await getUnreadCounts(user.id, conversationIds);
+      setUnreadCounts(counts);
     });
 
     // Subscribe to real-time updates
@@ -80,7 +88,26 @@ export function ChatLayout({
     return () => {
       unsubscribe();
     };
-  }, [user, setConversations, addConversation, updateConversation, setLoading]);
+  }, [user, setConversations, addConversation, updateConversation, setLoading, setUnreadCounts]);
+
+  // Subscribe to all conversations' messages to update unread counts
+  useEffect(() => {
+    if (!user || conversations.length === 0) return;
+
+    const unsubscribers = conversations.map((conv) => {
+      return subscribeToMessages(conv.id, async (message) => {
+        // If message is from another user and we're not viewing this conversation, increment unread
+        if (message.sender_id !== user.id && selectedConversationId !== conv.id) {
+          const counts = await getUnreadCounts(user.id, [conv.id]);
+          setUnreadCount(conv.id, counts[conv.id] || 0);
+        }
+      });
+    });
+
+    return () => {
+      unsubscribers.forEach((unsub) => unsub());
+    };
+  }, [user, conversations, selectedConversationId, setUnreadCount]);
 
   if (authLoading) {
     return (
@@ -170,11 +197,14 @@ export function ChatLayout({
               }] : [],
               avatar: conv.other_user.avatar_url || "",
               variant: selectedConversationId === conv.id ? "secondary" : "ghost",
+              hasUnread: (useChatStore.getState().unreadCounts[conv.id] || 0) > 0,
             }))}
             isMobile={isMobile}
             loading={useChatStore.getState().loading}
             onChatSelect={(conversationId) => {
               useChatStore.getState().setSelectedConversationId(conversationId);
+              // Clear unread count when selecting a conversation
+              useChatStore.getState().setUnreadCount(conversationId, 0);
             }}
             onNewChat={() => setNewChatOpen(true)}
           />

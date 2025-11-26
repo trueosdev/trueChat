@@ -274,3 +274,59 @@ export async function markMessagesAsRead(
   }
 }
 
+export async function getUnreadMessageCount(
+  conversationId: string,
+  userId: string
+): Promise<number> {
+  try {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('conversation_id', conversationId)
+      .neq('sender_id', userId)
+      .is('read_at', null)
+
+    if (error) {
+      console.error('Error getting unread count:', error)
+      return 0
+    }
+
+    return data || 0
+  } catch (error) {
+    console.error('Error getting unread count:', error)
+    return 0
+  }
+}
+
+export async function getUnreadCounts(
+  userId: string,
+  conversationIds: string[]
+): Promise<Record<string, number>> {
+  try {
+    if (conversationIds.length === 0) return {}
+
+    const { data, error } = await supabase
+      .from('messages')
+      .select('conversation_id')
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', userId)
+      .is('read_at', null)
+
+    if (error) {
+      console.error('Error getting unread counts:', error)
+      return {}
+    }
+
+    // Count messages per conversation
+    const counts: Record<string, number> = {}
+    data?.forEach((msg: any) => {
+      counts[msg.conversation_id] = (counts[msg.conversation_id] || 0) + 1
+    })
+
+    return counts
+  } catch (error) {
+    console.error('Error getting unread counts:', error)
+    return {}
+  }
+}
+

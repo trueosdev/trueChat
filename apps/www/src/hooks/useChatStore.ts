@@ -7,6 +7,7 @@ interface State {
   conversations: ConversationWithUser[];
   selectedConversationId: string | null;
   loading: boolean;
+  unreadCounts: Record<string, number>;
 }
 
 interface Actions {
@@ -24,6 +25,8 @@ interface Actions {
   updateConversation: (conversationId: string, updates: Partial<ConversationWithUser>) => void;
   setSelectedConversationId: (id: string | null) => void;
   setLoading: (loading: boolean) => void;
+  setUnreadCounts: (counts: Record<string, number>) => void;
+  setUnreadCount: (conversationId: string, count: number) => void;
 }
 
 const useChatStore = create<State & Actions>()((set) => ({
@@ -32,6 +35,7 @@ const useChatStore = create<State & Actions>()((set) => ({
   conversations: [],
   selectedConversationId: null,
   loading: false,
+  unreadCounts: {},
 
   setInput: (input) => set({ input }),
   handleInputChange: (
@@ -81,6 +85,10 @@ const useChatStore = create<State & Actions>()((set) => ({
   }),
   setSelectedConversationId: (id) => set({ selectedConversationId: id }),
   setLoading: (loading) => set({ loading }),
+  setUnreadCounts: (counts) => set({ unreadCounts: counts }),
+  setUnreadCount: (conversationId, count) => set((state) => ({
+    unreadCounts: { ...state.unreadCounts, [conversationId]: count },
+  })),
 }));
 
 export default useChatStore;

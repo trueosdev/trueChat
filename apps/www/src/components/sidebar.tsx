@@ -23,6 +23,7 @@ interface SidebarProps {
     messages: Message[];
     avatar: string;
     variant: "secondary" | "ghost";
+    hasUnread?: boolean;
   }[];
   onClick?: () => void;
   isMobile: boolean;
@@ -80,7 +81,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                     onClick={() => onChatSelect?.(chat.id)}
                     className={cn(
                       buttonVariants({ variant: chat.variant, size: "icon" }),
-                      "h-9 w-9",
+                      "h-9 w-9 relative",
                       chat.variant === "secondary" &&
                         "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
                     )}
@@ -91,6 +92,10 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                         alt={chat.avatar}
                       />
                     </Avatar>
+                    {/* Unread notification indicator */}
+                    {chat.hasUnread && (
+                      <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
+                    )}
                     <span className="sr-only">{chat.name}</span>
                   </button>
                 </TooltipTrigger>
@@ -113,12 +118,18 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                 "justify-start gap-3 px-2 py-3",
               )}
             >
-              <Avatar className="h-9 w-9 shrink-0">
-                <AvatarImage
-                  src={chat.avatar}
-                  alt={chat.avatar}
-                />
-              </Avatar>
+              <div className="relative shrink-0">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    src={chat.avatar}
+                    alt={chat.avatar}
+                  />
+                </Avatar>
+                {/* Unread notification indicator */}
+                {chat.hasUnread && (
+                  <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
+                )}
+              </div>
               <div className="flex flex-col max-w-28 text-left">
                 <span>{chat.name}</span>
                 {chat.messages.length > 0 && (
