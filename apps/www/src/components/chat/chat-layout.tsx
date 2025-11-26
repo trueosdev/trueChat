@@ -158,6 +158,7 @@ export function ChatLayout({
               variant: selectedConversationId === conv.id ? "secondary" : "ghost",
             }))}
             isMobile={isMobile}
+            loading={useChatStore.getState().loading}
             onChatSelect={(conversationId) => {
               useChatStore.getState().setSelectedConversationId(conversationId);
             }}

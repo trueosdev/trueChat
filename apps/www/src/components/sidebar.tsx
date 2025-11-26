@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Message } from "@/app/data";
 import { UserAvatarMenu } from "./user-avatar-menu";
+import { Skeleton } from "./ui/skeleton";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -27,9 +28,10 @@ interface SidebarProps {
   isMobile: boolean;
   onChatSelect?: (conversationId: string) => void;
   onNewChat?: () => void;
+  loading?: boolean;
 }
 
-export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat }: SidebarProps) {
+export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat, loading = false }: SidebarProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -58,7 +60,23 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat 
         </div>
       )}
       <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {chats.map((chat, index) =>
+        {loading ? (
+          // Loading skeletons
+          Array.from({ length: 5 }).map((_, index) => (
+            isCollapsed ? (
+              <Skeleton key={index} className="h-11 w-11 md:h-16 md:w-16 rounded-full" />
+            ) : (
+              <div key={index} className="flex items-center gap-4 p-3">
+                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                <div className="flex flex-col gap-2 flex-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+              </div>
+            )
+          ))
+        ) : (
+          chats.map((chat, index) =>
           isCollapsed ? (
             <TooltipProvider key={chat.id}>
               <Tooltip key={chat.id} delayDuration={0}>
@@ -125,8 +143,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat 
                 )}
               </div>
             </button>
-          ),
-        )}
+          )
+        ))}
       </nav>
     </div>
   );
