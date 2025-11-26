@@ -1,0 +1,1 @@
+{"version":3,"file":"chat-message-list.d.ts","sourceRoot":"","sources":["../../../../src/components/ui/chat/chat-message-list.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,KAAK,MAAM,OAAO,CAAC;AAK/B,UAAU,oBAAqB,SAAQ,KAAK,CAAC,cAAc,CAAC,cAAc,CAAC;IACzE,MAAM,CAAC,EAAE,OAAO,CAAC;CAClB;AAED,QAAA,MAAM,eAAe,6FAyCpB,CAAC;AAIF,OAAO,EAAE,eAAe,EAAE,CAAC"}

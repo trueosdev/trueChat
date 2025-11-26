@@ -1,0 +1,1 @@
+{"version":3,"file":"useAutoScroll.d.ts","sourceRoot":"","sources":["../../../../../src/components/ui/chat/hooks/useAutoScroll.tsx"],"names":[],"mappings":"AAQA,UAAU,oBAAoB;IAC5B,MAAM,CAAC,EAAE,MAAM,CAAC;IAChB,MAAM,CAAC,EAAE,OAAO,CAAC;IACjB,OAAO,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;CAC3B;AAED,wBAAgB,aAAa,CAAC,OAAO,GAAE,oBAAyB;;;;;;EAwH/D"}
