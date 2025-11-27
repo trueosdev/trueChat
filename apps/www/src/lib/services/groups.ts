@@ -29,31 +29,42 @@ export async function createGroupConversation(params: CreateGroupParams): Promis
     return null
   }
 
-  // Add all participants (including creator as admin)
-  const participantsToAdd = [
-    {
+  // First, add creator as admin (must be first so they can add others)
+  const { error: creatorError } = await supabase
+    .from('conversation_participants')
+    .insert({
       conversation_id: conversation.id,
       user_id: createdBy,
-      role: 'admin' as const,
-    },
-    ...participantIds
-      .filter(id => id !== createdBy)
-      .map(userId => ({
-        conversation_id: conversation.id,
-        user_id: userId,
-        role: 'member' as const,
-      })),
-  ]
+      role: 'admin',
+    })
 
-  const { error: participantsError } = await supabase
-    .from('conversation_participants')
-    .insert(participantsToAdd)
-
-  if (participantsError) {
-    console.error('Error adding participants:', participantsError)
+  if (creatorError) {
+    console.error('Error adding creator:', creatorError)
     // Rollback: delete the conversation
     await supabase.from('conversations').delete().eq('id', conversation.id)
     return null
+  }
+
+  // Then add other participants (now creator is admin and can add them)
+  const otherParticipants = participantIds
+    .filter(id => id !== createdBy)
+    .map(userId => ({
+      conversation_id: conversation.id,
+      user_id: userId,
+      role: 'member' as const,
+    }))
+
+  if (otherParticipants.length > 0) {
+    const { error: participantsError } = await supabase
+      .from('conversation_participants')
+      .insert(otherParticipants)
+
+    if (participantsError) {
+      console.error('Error adding participants:', participantsError)
+      // Rollback: delete the conversation (will cascade delete participants)
+      await supabase.from('conversations').delete().eq('id', conversation.id)
+      return null
+    }
   }
 
   // Fetch the complete conversation with participants

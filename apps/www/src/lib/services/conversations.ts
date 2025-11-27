@@ -144,6 +144,7 @@ export async function createConversation(user1Id: string, user2Id: string): Prom
   const { data: existing } = await supabase
     .from('conversations')
     .select('*')
+    .eq('is_group', false)
     .or(`and(user1_id.eq.${user1Id},user2_id.eq.${user2Id}),and(user1_id.eq.${user2Id},user2_id.eq.${user1Id})`)
     .single()
 
@@ -156,6 +157,7 @@ export async function createConversation(user1Id: string, user2Id: string): Prom
     .insert({
       user1_id: user1Id,
       user2_id: user2Id,
+      is_group: false,
     })
     .select()
     .single()

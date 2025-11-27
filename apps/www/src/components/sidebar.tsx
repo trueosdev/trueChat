@@ -46,26 +46,85 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
           <div className="flex items-center gap-0">
             <UserAvatarMenu />
 
-            <button
-              onClick={onNewChat}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "h-9 w-9",
-              )}
-            >
-              <SquarePen size={20} />
-            </button>
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onNewChat}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "h-9 w-9",
+                    )}
+                  >
+                    <SquarePen size={20} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  New Chat
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-            <button
-              onClick={onNewGroup}
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon" }),
-                "h-9 w-9",
-              )}
-            >
-              <Users size={20} />
-            </button>
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onNewGroup}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "h-9 w-9",
+                    )}
+                  >
+                    <Users size={20} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  New Group
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
+        </div>
+      )}
+      {isCollapsed && (
+        <div className="flex flex-col gap-1 px-2">
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onNewChat}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "icon" }),
+                    "h-9 w-9",
+                  )}
+                >
+                  <SquarePen size={20} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                New Chat
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onNewGroup}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "icon" }),
+                    "h-9 w-9",
+                  )}
+                >
+                  <Users size={20} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                New Group
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       )}
       <nav className="grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
