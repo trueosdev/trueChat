@@ -7,6 +7,9 @@ export interface Database {
           created_at: string
           user1_id: string
           user2_id: string
+          is_group: boolean
+          name: string | null
+          created_by: string | null
           last_message: {
             id: string
             content: string
@@ -18,7 +21,10 @@ export interface Database {
           id?: string
           created_at?: string
           user1_id?: string
-          user2_id: string
+          user2_id?: string
+          is_group?: boolean
+          name?: string | null
+          created_by?: string | null
           last_message?: any
         }
         Update: {
@@ -26,7 +32,33 @@ export interface Database {
           created_at?: string
           user1_id?: string
           user2_id?: string
+          is_group?: boolean
+          name?: string | null
+          created_by?: string | null
           last_message?: any
+        }
+      }
+      conversation_participants: {
+        Row: {
+          id: string
+          conversation_id: string
+          user_id: string
+          joined_at: string
+          role: 'admin' | 'member'
+        }
+        Insert: {
+          id?: string
+          conversation_id: string
+          user_id: string
+          joined_at?: string
+          role?: 'admin' | 'member'
+        }
+        Update: {
+          id?: string
+          conversation_id?: string
+          user_id?: string
+          joined_at?: string
+          role?: 'admin' | 'member'
         }
       }
       messages: {

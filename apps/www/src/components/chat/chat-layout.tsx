@@ -15,6 +15,7 @@ import { getConversations, subscribeToConversations } from "@/lib/services/conve
 import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
 import { NewChatDialog } from "../new-chat-dialog";
+import { NewGroupDialog } from "../new-group-dialog";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { getUnreadCounts, subscribeToMessages } from "@/lib/services/messages";
 
@@ -33,6 +34,7 @@ export function ChatLayout({
   const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
   const [isMobile, setIsMobile] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
+  const [newGroupOpen, setNewGroupOpen] = useState(false);
   const conversations = useChatStore((state) => state.conversations);
   const selectedConversationId = useChatStore((state) => state.selectedConversationId);
   const unreadCounts = useChatStore((state) => state.unreadCounts);
@@ -151,6 +153,11 @@ export function ChatLayout({
         onOpenChange={setNewChatOpen}
         onConversationCreated={handleConversationCreated}
       />
+      <NewGroupDialog
+        open={newGroupOpen}
+        onOpenChange={setNewGroupOpen}
+        onGroupCreated={handleConversationCreated}
+      />
       <ResizablePanelGroup
         direction="horizontal"
         onLayout={(sizes: number[]) => {
@@ -186,20 +193,42 @@ export function ChatLayout({
         >
           <Sidebar
             isCollapsed={isCollapsed || isMobile}
-            chats={conversations.map((conv) => ({
-              id: conv.id,
-              name: conv.other_user.fullname || conv.other_user.username || conv.other_user.email || "Unknown",
-              messages: conv.last_message ? [{
-                id: conv.last_message.id,
-                name: conv.other_user.fullname || conv.other_user.username || "Unknown",
-                message: conv.last_message.content,
-                timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
-                avatar: conv.other_user.avatar_url || "",
-              }] : [],
-              avatar: conv.other_user.avatar_url || "",
-              variant: selectedConversationId === conv.id ? "secondary" : "ghost",
-              hasUnread: (unreadCounts[conv.id] || 0) > 0,
-            }))}
+            chats={conversations.map((conv) => {
+              if (conv.is_group) {
+                return {
+                  id: conv.id,
+                  name: conv.name || "Unnamed Group",
+                  messages: conv.last_message ? [{
+                    id: conv.last_message.id,
+                    name: "Group",
+                    message: conv.last_message.content,
+                    timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
+                    avatar: "",
+                  }] : [],
+                  avatar: "",
+                  variant: selectedConversationId === conv.id ? "secondary" : "ghost",
+                  hasUnread: (unreadCounts[conv.id] || 0) > 0,
+                  isGroup: true,
+                  participantCount: conv.participant_count,
+                }
+              } else {
+                return {
+                  id: conv.id,
+                  name: conv.other_user?.fullname || conv.other_user?.username || conv.other_user?.email || "Unknown",
+                  messages: conv.last_message ? [{
+                    id: conv.last_message.id,
+                    name: conv.other_user?.fullname || conv.other_user?.username || "Unknown",
+                    message: conv.last_message.content,
+                    timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
+                    avatar: conv.other_user?.avatar_url || "",
+                  }] : [],
+                  avatar: conv.other_user?.avatar_url || "",
+                  variant: selectedConversationId === conv.id ? "secondary" : "ghost",
+                  hasUnread: (unreadCounts[conv.id] || 0) > 0,
+                  isGroup: false,
+                }
+              }
+            })}
             isMobile={isMobile}
             loading={useChatStore.getState().loading}
             onChatSelect={(conversationId) => {
@@ -208,6 +237,7 @@ export function ChatLayout({
               setUnreadCount(conversationId, 0);
             }}
             onNewChat={() => setNewChatOpen(true)}
+            onNewGroup={() => setNewGroupOpen(true)}
           />
         </ResizablePanel>
         <ResizableHandle withHandle onDoubleClick={handleDoubleClick} />

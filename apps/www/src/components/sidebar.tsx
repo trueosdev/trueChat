@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MoreHorizontal, SquarePen } from "lucide-react";
+import { MoreHorizontal, SquarePen, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -24,15 +24,18 @@ interface SidebarProps {
     avatar: string;
     variant: "secondary" | "ghost";
     hasUnread?: boolean;
+    isGroup?: boolean;
+    participantCount?: number;
   }[];
   onClick?: () => void;
   isMobile: boolean;
   onChatSelect?: (conversationId: string) => void;
   onNewChat?: () => void;
+  onNewGroup?: () => void;
   loading?: boolean;
 }
 
-export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat, loading = false }: SidebarProps) {
+export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat, onNewGroup, loading = false }: SidebarProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -51,6 +54,16 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
               )}
             >
               <SquarePen size={20} />
+            </button>
+
+            <button
+              onClick={onNewGroup}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "h-9 w-9",
+              )}
+            >
+              <Users size={20} />
             </button>
           </div>
         </div>
@@ -86,12 +99,18 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                         "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
                     )}
                   >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={chat.avatar}
-                        alt={chat.avatar}
-                      />
-                    </Avatar>
+                    {chat.isGroup ? (
+                      <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
+                        <Users size={18} className="text-black dark:text-white" />
+                      </div>
+                    ) : (
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage
+                          src={chat.avatar}
+                          alt={chat.avatar}
+                        />
+                      </Avatar>
+                    )}
                     {/* Unread notification indicator */}
                     {chat.hasUnread && (
                       <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
@@ -119,19 +138,32 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
               )}
             >
               <div className="relative shrink-0">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage
-                    src={chat.avatar}
-                    alt={chat.avatar}
-                  />
-                </Avatar>
+                {chat.isGroup ? (
+                  <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
+                    <Users size={18} className="text-black dark:text-white" />
+                  </div>
+                ) : (
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage
+                      src={chat.avatar}
+                      alt={chat.avatar}
+                    />
+                  </Avatar>
+                )}
                 {/* Unread notification indicator */}
                 {chat.hasUnread && (
                   <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
                 )}
               </div>
               <div className="flex flex-col max-w-28 text-left">
-                <span>{chat.name}</span>
+                <div className="flex items-center gap-1">
+                  <span className="truncate">{chat.name}</span>
+                  {chat.isGroup && chat.participantCount && (
+                    <span className="text-xs text-black/70 dark:text-white/70 shrink-0">
+                      ({chat.participantCount})
+                    </span>
+                  )}
+                </div>
                 {chat.messages.length > 0 && (
                   <span className="text-black dark:text-white text-xs truncate">
                     {chat.messages[chat.messages.length - 1].name.split(" ")[0]}

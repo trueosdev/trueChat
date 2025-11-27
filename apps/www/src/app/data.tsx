@@ -189,13 +189,33 @@ export interface ConversationWithUser {
   created_at: string;
   user1_id: string;
   user2_id: string;
+  is_group: boolean;
+  name: string | null;
+  created_by: string | null;
   last_message: {
     id: string;
     content: string;
     sender_id: string;
     created_at: string;
   } | null;
-  other_user: {
+  other_user?: {
+    id: string;
+    username: string | null;
+    fullname: string | null;
+    avatar_url: string | null;
+    email: string;
+  };
+  participants?: ConversationParticipant[];
+  participant_count?: number;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  joined_at: string;
+  role: 'admin' | 'member';
+  user: {
     id: string;
     username: string | null;
     fullname: string | null;

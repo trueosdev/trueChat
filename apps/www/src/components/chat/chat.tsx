@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { subscribeToTypingIndicator } from "@/lib/services/presence";
 import type { TypingState } from "@/lib/services/presence";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { GroupMembersDialog } from "../group-members-dialog";
 
 interface ChatProps {
   conversation: ConversationWithUser;
@@ -24,6 +25,7 @@ export function Chat({ conversation, isMobile }: ChatProps) {
   const setLoading = useChatStore((state) => state.setLoading);
   const [typingUsers, setTypingUsers] = useState<TypingState[]>([]);
   const [typingChannel, setTypingChannel] = useState<RealtimeChannel | null>(null);
+  const [showMembers, setShowMembers] = useState(false);
 
   useEffect(() => {
     if (!conversation || !user) return;
@@ -76,7 +78,10 @@ export function Chat({ conversation, isMobile }: ChatProps) {
 
   return (
     <div className="flex flex-col justify-between w-full h-full">
-      <ChatTopbar conversation={conversation} />
+      <ChatTopbar 
+        conversation={conversation}
+        onShowMembers={conversation.is_group ? () => setShowMembers(true) : undefined}
+      />
 
       <ChatList
         messages={messages}
@@ -90,6 +95,15 @@ export function Chat({ conversation, isMobile }: ChatProps) {
         isMobile={isMobile}
         typingChannel={typingChannel}
       />
+
+      {conversation.is_group && (
+        <GroupMembersDialog
+          open={showMembers}
+          onOpenChange={setShowMembers}
+          conversationId={conversation.id}
+          conversationName={conversation.name || "Unnamed Group"}
+        />
+      )}
     </div>
   );
 }
