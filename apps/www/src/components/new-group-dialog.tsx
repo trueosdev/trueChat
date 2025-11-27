@@ -210,7 +210,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 p-2 rounded-md bg-black/5 dark:bg-white/5">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user?.avatar_url || ''} />
+                      <AvatarImage src={user?.user_metadata?.avatar_url || ''} />
                     </Avatar>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-black dark:text-white">
