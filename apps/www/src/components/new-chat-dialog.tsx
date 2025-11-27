@@ -119,7 +119,7 @@ export function NewChatDialog({ open, onOpenChange, onConversationCreated }: New
                   </div>
                   {creating === String(user.id) && (
                     <div className="flex items-center justify-center">
-                      <div className="loader" style={{ width: '20px', height: '18px', border: '2px solid', padding: '0 3px' }}></div>
+                      <div className="loader" style={{ width: '20px', height: '18px', border: '1px solid', padding: '0 3px' }}></div>
                     </div>
                   )}
                 </button>

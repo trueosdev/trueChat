@@ -35,6 +35,7 @@ export function ChatLayout({
   const [newChatOpen, setNewChatOpen] = useState(false);
   const conversations = useChatStore((state) => state.conversations);
   const selectedConversationId = useChatStore((state) => state.selectedConversationId);
+  const unreadCounts = useChatStore((state) => state.unreadCounts);
   const setConversations = useChatStore((state) => state.setConversations);
   const addConversation = useChatStore((state) => state.addConversation);
   const updateConversation = useChatStore((state) => state.updateConversation);
@@ -197,14 +198,14 @@ export function ChatLayout({
               }] : [],
               avatar: conv.other_user.avatar_url || "",
               variant: selectedConversationId === conv.id ? "secondary" : "ghost",
-              hasUnread: (useChatStore.getState().unreadCounts[conv.id] || 0) > 0,
+              hasUnread: (unreadCounts[conv.id] || 0) > 0,
             }))}
             isMobile={isMobile}
             loading={useChatStore.getState().loading}
             onChatSelect={(conversationId) => {
-              useChatStore.getState().setSelectedConversationId(conversationId);
+              setSelectedConversationId(conversationId);
               // Clear unread count when selecting a conversation
-              useChatStore.getState().setUnreadCount(conversationId, 0);
+              setUnreadCount(conversationId, 0);
             }}
             onNewChat={() => setNewChatOpen(true)}
           />
