@@ -42,8 +42,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
       className="relative group flex flex-col h-full bg-muted/10 dark:bg-muted/20 gap-4 p-2 data-[collapsed=true]:p-2 "
     >
       {!isCollapsed && (
-        <div className="flex justify-between px-2 items-center text-left">
-          <div className="flex items-center gap-0">
+        <div className="flex items-center gap-2 px-2 text-left">
+          <div className="flex items-center gap-2">
             <UserAvatarMenu />
 
             <TooltipProvider>
@@ -193,6 +193,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                 buttonVariants({ variant: chat.variant, size: "xl" }),
                 chat.variant === "secondary" &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink",
+                chat.variant === "ghost" && "border border-transparent",
                 "justify-start gap-3 px-2 py-3",
               )}
             >

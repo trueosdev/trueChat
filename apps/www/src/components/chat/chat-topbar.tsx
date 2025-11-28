@@ -40,7 +40,7 @@ export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarPr
 
   if (conversation.is_group) {
     return (
-      <ExpandableChatHeader>
+      <ExpandableChatHeader className="px-2 py-3 sm:px-4">
         <div className="flex items-center gap-3 flex-1">
           <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
             <Users size={18} className="text-black dark:text-white" />
@@ -73,8 +73,8 @@ export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarPr
   const displayName = otherUser.fullname || otherUser.username || otherUser.email || "Unknown";
 
   return (
-    <ExpandableChatHeader>
-      <div className="flex items-center gap-3">
+    <ExpandableChatHeader className="px-2 py-3 sm:px-4">
+      <div className="flex items-center gap-3 flex-1">
         <div className="relative">
           <Avatar className="h-9 w-9">
             <AvatarImage

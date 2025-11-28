@@ -249,7 +249,7 @@ export function ChatLayout({
             />
           ) : (
             <div className="flex items-center justify-center h-full text-black dark:text-white">
-              Select a conversation to start chatting
+              It's lonely in here...
             </div>
           )}
         </ResizablePanel>
