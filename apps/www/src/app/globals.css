@@ -9,46 +9,47 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;
+    --foreground: 0 0% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
-    --primary: 0 0% 0%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 0 0% 9%;
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 100%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 100%;
-    --muted-foreground: 0 0% 0%;
+    --muted-foreground: 0 0% 9%;
     --accent: 0 0% 100%;
-    --accent-foreground: 0 0% 0%;
-    --destructive: 0 0% 0%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 0% 9%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 0%;
+    --border: 0 0% 9%;
     --input: 0 0% 100%;
-    --ring: 0 0% 0%;
+    --ring: 0 0% 9%;
     --radius: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 0 0% 9%;
     --foreground: 0 0% 100%;
-    --card: 0 0% 0%;
+    --card: 0 0% 9%;
     --card-foreground: 0 0% 100%;
-    --popover: 0 0% 0%;
+    --popover: 0 0% 9%;
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 0%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 9%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 0%;
+    --muted: 0 0% 9%;
     --muted-foreground: 0 0% 100%;
-    --accent: 0 0% 0%;
+    --accent: 0 0% 9%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 0% 100%;
-    --destructive-foreground: 0 0% 0%;
+    --destructive-foreground: 0 0% 9%;
     --border: 0 0% 100%;
-    --input: 0 0% 0%;
+    --input: 0 0% 9%;
     --ring: 0 0% 100%;
   }
 }
@@ -56,6 +57,7 @@
 @layer base {
   * {
     @apply border-border;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   }
 
   body {
@@ -64,7 +66,7 @@
 }
 
 .text-gradient {
-  background: linear-gradient(90deg, #000000, rgba(0, 0, 0, .8));
+  background: linear-gradient(90deg, #181818, #181818CC);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text
@@ -82,7 +84,7 @@
   content: "";
   position: absolute;
   border-radius: 50px;
-  box-shadow: 0 0 0 3px inset #000;
+  box-shadow: 0 0 0 3px inset #181818;
   animation: l5 2.5s infinite;
 }
 
@@ -110,19 +112,19 @@
 
 /* React Image Crop Custom Styles */
 .ReactCrop__crop-selection {
-  border: 2px solid rgba(0, 0, 0, 0.8) !important;
+  border: 2px solid #181818CC !important;
 }
 
 .dark .ReactCrop__crop-selection {
-  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid #FFFFFFCC !important;
 }
 
 .ReactCrop__drag-handle {
-  background-color: rgba(0, 0, 0, 0.9) !important;
-  border: 1px solid rgba(0, 0, 0, 0.8) !important;
+  background-color: #181818E6 !important;
+  border: 1px solid #181818CC !important;
 }
 
 .dark .ReactCrop__drag-handle {
-  background-color: rgba(255, 255, 255, 0.9) !important;
-  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  background-color: #FFFFFFE6 !important;
+  border: 1px solid #FFFFFFCC !important;
 }

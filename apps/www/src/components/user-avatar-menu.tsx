@@ -12,16 +12,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, UserCircle, ImageIcon, Moon, Sun } from "lucide-react";
+import { LogOut, UserCircle, ImageIcon } from "lucide-react";
 import { signOut } from "@/lib/supabase/auth";
 import { useRouter } from "next/navigation";
 import { ChangeAvatarDialog } from "./change-avatar-dialog";
-import { useTheme } from "next-themes";
+import { ThemeEditor } from "./theme-editor";
 
 export function UserAvatarMenu() {
   const { user } = useAuth();
   const router = useRouter();
-  const { theme, setTheme } = useTheme();
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -36,10 +35,6 @@ export function UserAvatarMenu() {
   const handleAvatarChanged = () => {
     // Refresh the page to show the new avatar
     window.location.reload();
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   if (!user) return null;
@@ -86,19 +81,7 @@ export function UserAvatarMenu() {
             <ImageIcon className="mr-2 h-4 w-4" />
             <span>Change Avatar</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
-            {theme === "dark" ? (
-              <>
-                <Sun className="mr-2 h-4 w-4" />
-                <span>Light Mode</span>
-              </>
-            ) : (
-              <>
-                <Moon className="mr-2 h-4 w-4" />
-                <span>Dark Mode</span>
-              </>
-            )}
-          </DropdownMenuItem>
+          <ThemeEditor />
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
             <LogOut className="mr-2 h-4 w-4" />
