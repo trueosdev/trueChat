@@ -87,7 +87,20 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
         </div>
       )}
       {isCollapsed && (
-        <div className="flex flex-col gap-1 px-2">
+        <div className="flex flex-col items-center gap-1 px-2 pt-4">
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-center">
+                  <UserAvatarMenu />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Profile
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -95,7 +108,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                   onClick={onNewChat}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "h-9 w-9",
+                    "h-9 w-9 flex items-center justify-center",
                   )}
                 >
                   <SquarePen size={20} />
@@ -114,7 +127,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                   onClick={onNewGroup}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "icon" }),
-                    "h-9 w-9",
+                    "h-9 w-9 flex items-center justify-center",
                   )}
                 >
                   <Users size={20} />
@@ -127,12 +140,14 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
           </TooltipProvider>
         </div>
       )}
-      <nav className="grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
+      <nav className="grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:items-center group-[[data-collapsed=true]]:px-2 group-[[data-collapsed=true]]:pt-2 group-[[data-collapsed=true]]:gap-3">
         {loading ? (
           // Loading skeletons
           Array.from({ length: 5 }).map((_, index) => (
             isCollapsed ? (
-              <Skeleton key={index} className="h-9 w-9 rounded-full" />
+              <div key={index} className="flex items-center justify-center">
+                <Skeleton className="h-9 w-9 rounded-full" />
+              </div>
             ) : (
               <div key={index} className="flex items-center gap-3 px-2 py-3">
                 <Skeleton className="h-9 w-9 rounded-full shrink-0" />
@@ -149,33 +164,35 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
             <TooltipProvider key={chat.id}>
               <Tooltip key={chat.id} delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <button
-                    onClick={() => onChatSelect?.(chat.id)}
-                    className={cn(
-                      buttonVariants({ variant: chat.variant, size: "icon" }),
-                      "h-9 w-9 relative",
-                      chat.variant === "secondary" &&
-                        "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
-                    )}
-                  >
-                    {chat.isGroup ? (
-                      <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
-                        <Users size={18} className="text-black dark:text-white" />
-                      </div>
-                    ) : (
-                      <Avatar className="h-9 w-9">
-                        <AvatarImage
-                          src={chat.avatar}
-                          alt={chat.avatar}
-                        />
-                      </Avatar>
-                    )}
-                    {/* Unread notification indicator */}
-                    {chat.hasUnread && (
-                      <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
-                    )}
-                    <span className="sr-only">{chat.name}</span>
-                  </button>
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={() => onChatSelect?.(chat.id)}
+                      className={cn(
+                        buttonVariants({ variant: chat.variant, size: "icon" }),
+                        "h-9 w-9 relative flex items-center justify-center",
+                        chat.variant === "secondary" &&
+                          "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
+                      )}
+                    >
+                      {chat.isGroup ? (
+                        <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
+                          <Users size={18} className="text-black dark:text-white" />
+                        </div>
+                      ) : (
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage
+                            src={chat.avatar}
+                            alt={chat.avatar}
+                          />
+                        </Avatar>
+                      )}
+                      {/* Unread notification indicator */}
+                      {chat.hasUnread && (
+                        <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
+                      )}
+                      <span className="sr-only">{chat.name}</span>
+                    </button>
+                  </div>
                 </TooltipTrigger>
                 <TooltipContent
                   side="right"
