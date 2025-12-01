@@ -111,7 +111,7 @@ export function MessageSearchDialog({
             </div>
           ) : filteredMessages.length === 0 ? (
             <div className="text-center py-8 text-black dark:text-white">
-              <p>No messages found matching "{searchQuery}"</p>
+              <p>No messages found matching &quot;{searchQuery}&quot;</p>
             </div>
           ) : (
             <div className="space-y-2">
