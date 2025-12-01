@@ -47,7 +47,10 @@ export function getAllCommands(registry: CommandRegistry): CommandHandler[] {
   const seen = new Set<string>();
   const result: CommandHandler[] = [];
   
-  for (const command of registry.values()) {
+  // Convert Map.values() iterator to array to avoid downlevelIteration issues
+  const commands = Array.from(registry.values());
+  
+  for (const command of commands) {
     if (!seen.has(command.name)) {
       seen.add(command.name);
       result.push(command);

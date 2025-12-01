@@ -45,9 +45,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <TerminalModeProvider>
-              <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
-                {children}
-              </main>
+            <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
+              {children}
+            </main>
             </TerminalModeProvider>
           </AuthProvider>
         </ThemeProvider>
