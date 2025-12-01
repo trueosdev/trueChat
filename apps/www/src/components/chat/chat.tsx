@@ -10,6 +10,7 @@ import { subscribeToTypingIndicator } from "@/lib/services/presence";
 import type { TypingState } from "@/lib/services/presence";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { GroupMembersDialog } from "../group-members-dialog";
+import { MessageSearchDialog } from "../message-search-dialog";
 
 interface ChatProps {
   conversation: ConversationWithUser;
@@ -26,6 +27,7 @@ export function Chat({ conversation, isMobile }: ChatProps) {
   const [typingUsers, setTypingUsers] = useState<TypingState[]>([]);
   const [typingChannel, setTypingChannel] = useState<RealtimeChannel | null>(null);
   const [showMembers, setShowMembers] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   useEffect(() => {
     if (!conversation || !user) return;
@@ -81,6 +83,7 @@ export function Chat({ conversation, isMobile }: ChatProps) {
       <ChatTopbar 
         conversation={conversation}
         onShowMembers={conversation.is_group ? () => setShowMembers(true) : undefined}
+        onShowSearch={() => setShowSearch(true)}
       />
 
       <ChatList
@@ -104,6 +107,16 @@ export function Chat({ conversation, isMobile }: ChatProps) {
           conversationName={conversation.name || "Unnamed Group"}
         />
       )}
+      <MessageSearchDialog
+        open={showSearch}
+        onOpenChange={setShowSearch}
+        messages={messages}
+        conversationName={
+          conversation.is_group
+            ? conversation.name || "Unnamed Group"
+            : conversation.other_user?.fullname || conversation.other_user?.username || conversation.other_user?.email || "Chat"
+        }
+      />
     </div>
   );
 }

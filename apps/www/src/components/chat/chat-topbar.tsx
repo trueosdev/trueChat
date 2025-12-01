@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { ConversationWithUser } from "@/app/data";
-import { Info, Phone, Video, Users } from "lucide-react";
+import { Info, Phone, Video, Users, Search } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
@@ -12,11 +12,12 @@ import { useAuth } from "@/hooks/useAuth";
 interface ChatTopbarProps {
   conversation: ConversationWithUser;
   onShowMembers?: () => void;
+  onShowSearch?: () => void;
 }
 
 export const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
 
-export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarProps) {
+export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }: ChatTopbarProps) {
   const { user } = useAuth();
   const [isOnline, setIsOnline] = useState(false);
 
@@ -45,6 +46,18 @@ export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarPr
           <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
             <Users size={18} className="text-black dark:text-white" />
           </div>
+          {onShowSearch && (
+            <button
+              onClick={onShowSearch}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon" }),
+                "h-8 w-8"
+              )}
+              title="Search messages"
+            >
+              <Search size={18} />
+            </button>
+          )}
           <div className="flex flex-col text-left flex-1">
             <span className="font-medium">{conversation.name || "Unnamed Group"}</span>
             <span className="text-xs text-muted-foreground">
@@ -58,6 +71,7 @@ export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarPr
                 buttonVariants({ variant: "ghost", size: "icon" }),
                 "h-8 w-8"
               )}
+              title="Group info"
             >
               <Info size={18} />
             </button>
@@ -94,7 +108,18 @@ export default function ChatTopbar({ conversation, onShowMembers }: ChatTopbarPr
           </span>
         </div>
       </div>
-
+      {onShowSearch && (
+        <button
+          onClick={onShowSearch}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "icon" }),
+            "h-8 w-8"
+          )}
+          title="Search messages"
+        >
+          <Search size={18} />
+        </button>
+      )}
     </ExpandableChatHeader>
   );
 }

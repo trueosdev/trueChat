@@ -59,6 +59,7 @@ export function ChatList({
             return (
               <motion.div
                 key={message.id}
+                data-message-id={message.id}
                 layout
                 initial={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                 animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
