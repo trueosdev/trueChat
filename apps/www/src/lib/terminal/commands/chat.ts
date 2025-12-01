@@ -15,7 +15,7 @@ export const chatCommand: CommandHandler = {
     if (args.length === 0 || args[0] === "list") {
       // List conversations
       try {
-        const conversations = await getConversations(context.user.id);
+        const conversations = await getConversations(String(context.user.id));
         context.store.setConversations(conversations);
         
         if (conversations.length === 0) {
@@ -93,10 +93,10 @@ export const chatCommand: CommandHandler = {
           } else {
             // Create new conversation
             try {
-              const newConv = await createConversation(context.user.id, user.id);
+              const newConv = await createConversation(String(context.user.id), String(user.id));
               if (newConv) {
                 // Fetch full conversation details
-                const conversations = await getConversations(context.user.id);
+                const conversations = await getConversations(String(context.user.id));
                 const fullConv = conversations.find(c => c.id === newConv.id);
                 if (fullConv) {
                   context.store.addConversation(fullConv);
