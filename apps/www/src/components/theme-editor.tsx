@@ -1,8 +1,9 @@
 "use client";
 
-import { Palette, Moon, Sun, Monitor, Check } from "lucide-react";
+import { Palette, Moon, Sun, Monitor, Check, Terminal } from "lucide-react";
 import { useColorTheme } from "@/hooks/useColorTheme";
 import { useTheme } from "next-themes";
+import { useTerminal } from "@/hooks/useTerminal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ import {
 export function ThemeEditor() {
   const { colorTheme, setColorTheme, colorThemes, mounted } = useColorTheme();
   const { theme, setTheme, resolvedTheme } = useTheme();
+  const { isTerminalMode, toggleTerminalMode } = useTerminal();
 
   if (!mounted) return null;
 
@@ -40,6 +42,15 @@ export function ThemeEditor() {
         <Monitor className="mr-2 h-4 w-4" />
         <span>System</span>
         {theme === "system" && <Check className="ml-auto h-4 w-4" />}
+      </DropdownMenuItem>
+      
+      <DropdownMenuSeparator />
+      
+      {/* Terminal Mode Toggle */}
+      <DropdownMenuItem onClick={toggleTerminalMode} className="cursor-pointer">
+        <Terminal className="mr-2 h-4 w-4" />
+        <span>Terminal Mode</span>
+        {isTerminalMode && <Check className="ml-auto h-4 w-4" />}
       </DropdownMenuItem>
       
       <DropdownMenuSeparator />

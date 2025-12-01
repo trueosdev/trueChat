@@ -1,10 +1,34 @@
+"use client";
+
 import { cookies } from "next/headers";
 import { ChatLayout } from "@/components/chat/chat-layout";
 import { FooterText } from "@/components/footer-text";
+import { Terminal } from "@/components/terminal/terminal";
+import { useTerminal } from "@/hooks/useTerminal";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const layout = cookies().get("react-resizable-panels:layout");
-  const defaultLayout = layout ? JSON.parse(layout.value) : undefined;
+  const { isTerminalMode } = useTerminal();
+  const [defaultLayout, setDefaultLayout] = useState<number[] | undefined>(undefined);
+
+  useEffect(() => {
+    // Client-side only access to cookies
+    const layoutCookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("react-resizable-panels:layout="));
+    if (layoutCookie) {
+      const layoutValue = layoutCookie.split("=")[1];
+      try {
+        setDefaultLayout(JSON.parse(decodeURIComponent(layoutValue)));
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+  }, []);
+
+  if (isTerminalMode) {
+    return <Terminal />;
+  }
 
   return (
     <>

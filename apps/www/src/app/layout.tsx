@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Questrial } from "next/font/google";
 import "./globals.css";
+import "./terminal.css";
 import "@shadcn-chat/ui/styles.css";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { TerminalModeProvider } from "@/components/terminal/terminal-mode-provider";
 
 const questrial = Questrial({
   weight: "400",
@@ -42,9 +44,11 @@ export default function RootLayout({
       <body className={questrial.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
-              {children}
-            </main>
+            <TerminalModeProvider>
+              <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 py-32 gap-4">
+                {children}
+              </main>
+            </TerminalModeProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
