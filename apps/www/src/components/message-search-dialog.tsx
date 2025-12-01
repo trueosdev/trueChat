@@ -40,7 +40,7 @@ export function MessageSearchDialog({
     
     const query = searchQuery.toLowerCase()
     return messages.filter((msg) => {
-      const content = msg.message || msg.content || ''
+      const content = msg.message || ''
       return content.toLowerCase().includes(query)
     })
   }, [messages, searchQuery])
@@ -116,7 +116,7 @@ export function MessageSearchDialog({
           ) : (
             <div className="space-y-2">
               {filteredMessages.map((message) => {
-                const messageContent = message.message || message.content || ''
+                const messageContent = message.message || ''
                 const queryIndex = messageContent.toLowerCase().indexOf(searchQuery.toLowerCase())
                 const beforeMatch = messageContent.substring(0, queryIndex)
                 const match = messageContent.substring(queryIndex, queryIndex + searchQuery.length)
