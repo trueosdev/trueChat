@@ -2,6 +2,9 @@ import { supabase } from '../supabase/client'
 
 export async function uploadAvatar(userId: string, file: File): Promise<string | null> {
   try {
+    // First, delete all old avatars for this user
+    await deleteAllUserAvatars(userId)
+
     // Generate a unique file name
     const fileExt = file.name.split('.').pop()
     const fileName = `${userId}/avatar-${Date.now()}.${fileExt}`
@@ -33,11 +36,27 @@ export async function uploadAvatar(userId: string, file: File): Promise<string |
 
 export async function deleteAvatar(url: string): Promise<boolean> {
   try {
+    if (!url) return false
+
     // Extract the file path from the URL
-    const urlParts = url.split('/avatars/')
-    if (urlParts.length < 2) return false
+    // URL format: https://project.supabase.co/storage/v1/object/public/avatars/userId/avatar-123.jpg
+    // We need: userId/avatar-123.jpg
+    let filePath = ''
     
-    const filePath = urlParts[1]
+    // Try different URL formats
+    if (url.includes('/avatars/')) {
+      filePath = url.split('/avatars/')[1]
+    } else if (url.includes('avatars/')) {
+      filePath = url.split('avatars/')[1]
+    } else {
+      // If it's already a path
+      filePath = url
+    }
+
+    if (!filePath) {
+      console.error('Could not extract file path from URL:', url)
+      return false
+    }
 
     const { error } = await supabase.storage
       .from('avatars')
@@ -51,6 +70,43 @@ export async function deleteAvatar(url: string): Promise<boolean> {
     return true
   } catch (error) {
     console.error('Error deleting avatar:', error)
+    return false
+  }
+}
+
+export async function deleteAllUserAvatars(userId: string): Promise<boolean> {
+  try {
+    // List all files in the user's avatar folder
+    const { data: files, error: listError } = await supabase.storage
+      .from('avatars')
+      .list(userId, {
+        limit: 100,
+        sortBy: { column: 'created_at', order: 'desc' },
+      })
+
+    if (listError) {
+      console.error('Error listing avatars:', listError)
+      return false
+    }
+
+    if (!files || files.length === 0) {
+      return true // No files to delete
+    }
+
+    // Delete all files
+    const filePaths = files.map((file) => `${userId}/${file.name}`)
+    const { error: deleteError } = await supabase.storage
+      .from('avatars')
+      .remove(filePaths)
+
+    if (deleteError) {
+      console.error('Error deleting avatars:', deleteError)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error deleting all user avatars:', error)
     return false
   }
 }

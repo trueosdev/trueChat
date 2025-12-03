@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import { X, Upload, Loader2, Crop } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
-import { uploadAvatar, updateUserAvatar, deleteAvatar } from '@/lib/services/avatar'
+import { uploadAvatar, updateUserAvatar } from '@/lib/services/avatar'
 import { useAuth } from '@/hooks/useAuth'
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
@@ -152,12 +152,7 @@ export function ChangeAvatarDialog({ open, onOpenChange, onAvatarChanged }: Chan
         return
       }
 
-      // Delete old avatar if exists
-      if (currentAvatarUrl) {
-        await deleteAvatar(currentAvatarUrl)
-      }
-
-      // Upload new avatar
+      // Upload new avatar (this will automatically delete all old avatars)
       const avatarUrl = await uploadAvatar(user.id, fileToUpload)
       
       if (!avatarUrl) {
