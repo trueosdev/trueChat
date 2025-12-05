@@ -3,8 +3,8 @@
 import { useState, useMemo } from 'react'
 import { X, Search } from 'lucide-react'
 import { Button } from './ui/button'
-import { Avatar, AvatarImage } from './ui/avatar'
-import { getAvatarUrl } from '@/lib/utils'
+import { Avatar } from './ui/avatar'
+import { ThemeAvatarImage } from './ui/theme-avatar'
 import { Message } from '@/app/data'
 // Format date helper
 const formatDate = (dateString: string) => {
@@ -130,7 +130,7 @@ export function MessageSearchDialog({
                     className="w-full flex items-start gap-3 p-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-left"
                   >
                     <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage src={getAvatarUrl(message.avatar)} alt={message.name} />
+                      <ThemeAvatarImage avatarUrl={message.avatar} alt={message.name} />
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">

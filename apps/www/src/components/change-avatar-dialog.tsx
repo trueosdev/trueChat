@@ -4,9 +4,10 @@ import { useState, useRef, useCallback } from 'react'
 import { X, Upload, Loader2, Crop } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar'
+import { ThemeAvatarImage } from './ui/theme-avatar'
 import { uploadAvatar, updateUserAvatar } from '@/lib/services/avatar'
-import { getAvatarUrl } from '@/lib/utils'
 import { useAuth } from '@/hooks/useAuth'
+import { useAvatarUrl } from '@/hooks/useAvatarUrl'
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
@@ -29,7 +30,7 @@ export function ChangeAvatarDialog({ open, onOpenChange, onAvatarChanged }: Chan
   const fileInputRef = useRef<HTMLInputElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
 
-  const currentAvatarUrl = getAvatarUrl(user?.user_metadata?.avatar_url)
+  const currentAvatarUrl = useAvatarUrl(user?.user_metadata?.avatar_url)
   const displayName = user?.user_metadata?.fullname || user?.user_metadata?.username || user?.email || 'User'
   
   const initials = displayName

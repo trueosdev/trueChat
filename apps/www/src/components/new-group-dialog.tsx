@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Search, X, Users } from 'lucide-react'
 import { Button } from './ui/button'
-import { Avatar, AvatarImage } from './ui/avatar'
-import { getAvatarUrl } from '@/lib/utils'
+import { Avatar } from './ui/avatar'
+import { ThemeAvatarImage } from './ui/theme-avatar'
 import { getUsers } from '@/lib/services/users'
 import { createGroupConversation } from '@/lib/services/groups'
 import { useAuth } from '@/hooks/useAuth'
@@ -152,7 +152,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                       >
                         <div className="relative">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={getAvatarUrl(user.avatar_url)} alt={user.name} />
+                            <ThemeAvatarImage avatarUrl={user.avatar_url} alt={user.name} />
                           </Avatar>
                           {isSelected && (
                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-black dark:bg-white rounded-full flex items-center justify-center">
@@ -211,7 +211,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 p-2 rounded-md bg-black/5 dark:bg-white/5">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={getAvatarUrl(user?.user_metadata?.avatar_url)} />
+                      <ThemeAvatarImage avatarUrl={user?.user_metadata?.avatar_url} />
                     </Avatar>
                     <div className="flex-1">
                       <p className="text-sm font-medium text-black dark:text-white">
@@ -226,7 +226,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                     return (
                       <div key={userId} className="flex items-center gap-2 p-2 rounded-md bg-black/5 dark:bg-white/5">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={getAvatarUrl(selectedUser.avatar_url)} />
+                          <ThemeAvatarImage avatarUrl={selectedUser.avatar_url} />
                         </Avatar>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-black dark:text-white">

@@ -3,7 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { MoreHorizontal, SquarePen, Users } from "lucide-react";
-import { cn, getAvatarUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { ThemeAvatarImage } from "./ui/theme-avatar";
 import * as LucideIcons from 'lucide-react';
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -194,8 +195,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                           chat.variant === "secondary" && "ring-2 ring-black dark:ring-white"
                         )}>
                         <Avatar className="h-9 w-9">
-                          <AvatarImage
-                              src={getAvatarUrl(chat.avatar)}
+                          <ThemeAvatarImage
+                              avatarUrl={chat.avatar}
                               alt={chat.name}
                           />
                         </Avatar>
@@ -242,8 +243,8 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                   </div>
                 ) : (
                   <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      src={getAvatarUrl(chat.avatar)}
+                    <ThemeAvatarImage
+                      avatarUrl={chat.avatar}
                       alt={chat.name}
                     />
                   </Avatar>

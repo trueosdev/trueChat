@@ -1,5 +1,8 @@
+"use client";
+
 import { Message, ConversationWithUser } from "@/app/data";
-import { cn, getAvatarUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -22,6 +25,12 @@ interface ChatListProps {
   conversation: ConversationWithUser;
   isMobile: boolean;
   typingUsers?: TypingState[];
+}
+
+// Component to wrap ChatBubbleAvatar with theme-aware avatar URL
+function ThemeChatBubbleAvatar({ avatarUrl }: { avatarUrl?: string | null }) {
+  const themeAwareUrl = useAvatarUrl(avatarUrl);
+  return <ChatBubbleAvatar src={themeAwareUrl} />;
 }
 
 export function ChatList({
@@ -76,7 +85,7 @@ export function ChatList({
                 className="flex flex-col gap-2 p-4"
               >
                 <ChatBubble variant={variant}>
-                  <ChatBubbleAvatar src={getAvatarUrl(message.avatar)} />
+                  <ThemeChatBubbleAvatar avatarUrl={message.avatar} />
                   <ChatBubbleMessage isLoading={message.isLoading}>
                     {/* Attachment preview */}
                     {message.attachment_url && (

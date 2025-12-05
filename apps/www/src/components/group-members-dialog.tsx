@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { X, UserPlus, MoreVertical, Shield, UserMinus, Search, Edit } from 'lucide-react'
 import { Button } from './ui/button'
-import { Avatar, AvatarImage } from './ui/avatar'
-import { getAvatarUrl } from '@/lib/utils'
+import { Avatar } from './ui/avatar'
+import { ThemeAvatarImage } from './ui/theme-avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -161,7 +161,7 @@ export function GroupMembersDialog({ open, onOpenChange, conversationId, convers
                       className="w-full flex items-center gap-3 p-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
                     >
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={getAvatarUrl(user.avatar_url)} alt={user.name} />
+                        <ThemeAvatarImage avatarUrl={user.avatar_url} alt={user.name} />
                       </Avatar>
                       <div className="flex-1 text-left">
                         <p className="font-medium text-black dark:text-white">
@@ -217,8 +217,8 @@ export function GroupMembersDialog({ open, onOpenChange, conversationId, convers
                         className="flex items-center gap-3 p-3 rounded-md"
                       >
                         <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={getAvatarUrl(participant.user.avatar_url)}
+                          <ThemeAvatarImage
+                            avatarUrl={participant.user.avatar_url}
                             alt={participant.user.fullname || participant.user.username || ''}
                           />
                         </Avatar>

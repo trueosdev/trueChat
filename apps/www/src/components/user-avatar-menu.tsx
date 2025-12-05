@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { getAvatarUrl } from "@/lib/utils";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThemeAvatarImage } from "@/components/ui/theme-avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +41,6 @@ export function UserAvatarMenu() {
   if (!user) return null;
 
   const displayName = user.user_metadata?.fullname || user.user_metadata?.username || user.email || "User";
-  const avatarUrl = getAvatarUrl(user.user_metadata?.avatar_url);
   
   // Get initials for fallback
   const initials = displayName
@@ -63,7 +62,7 @@ export function UserAvatarMenu() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full p-0">
             <Avatar className="h-9 w-9">
-              <AvatarImage src={avatarUrl} alt={displayName} />
+              <ThemeAvatarImage avatarUrl={user.user_metadata?.avatar_url} alt={displayName} />
             </Avatar>
           </Button>
         </DropdownMenuTrigger>

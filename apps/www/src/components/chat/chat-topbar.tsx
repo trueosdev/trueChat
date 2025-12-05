@@ -1,9 +1,12 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar } from "../ui/avatar";
+import { ThemeAvatarImage } from "../ui/theme-avatar";
 import { ConversationWithUser } from "@/app/data";
 import { Info, Phone, Video, Users, Search } from "lucide-react";
 import Link from "next/link";
-import { cn, getAvatarUrl } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import * as LucideIcons from 'lucide-react';
 import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
@@ -98,8 +101,8 @@ export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }
       <div className="flex items-center gap-3 flex-1">
         <div className="relative">
           <Avatar className="h-9 w-9">
-            <AvatarImage
-              src={getAvatarUrl(otherUser.avatar_url)}
+            <ThemeAvatarImage
+              avatarUrl={otherUser.avatar_url}
               alt={displayName}
             />
           </Avatar>
