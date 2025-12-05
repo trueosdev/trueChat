@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client'
 import type { User } from '@/app/data'
+import { getAvatarUrl } from '../utils'
 
 export async function getUsers(): Promise<User[]> {
   const { data, error } = await supabase
@@ -18,7 +19,7 @@ export async function getUsers(): Promise<User[]> {
     username: user.username,
     email: user.email,
     fullname: user.fullname,
-    avatar: user.avatar_url || '',
+    avatar: getAvatarUrl(user.avatar_url),
     avatar_url: user.avatar_url,
     bio: user.bio,
     messages: [],
@@ -43,7 +44,7 @@ export async function getUserById(id: string): Promise<User | null> {
     username: data.username,
     email: data.email,
     fullname: data.fullname,
-    avatar: data.avatar_url || '',
+    avatar: getAvatarUrl(data.avatar_url),
     avatar_url: data.avatar_url,
     bio: data.bio,
     messages: [],

@@ -1,5 +1,5 @@
 import { Message, ConversationWithUser } from "@/app/data";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -76,7 +76,7 @@ export function ChatList({
                 className="flex flex-col gap-2 p-4"
               >
                 <ChatBubble variant={variant}>
-                  <ChatBubbleAvatar src={message.avatar} />
+                  <ChatBubbleAvatar src={getAvatarUrl(message.avatar)} />
                   <ChatBubbleMessage isLoading={message.isLoading}>
                     {/* Attachment preview */}
                     {message.attachment_url && (

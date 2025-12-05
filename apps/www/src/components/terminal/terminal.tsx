@@ -375,7 +375,7 @@ export function Terminal() {
         ))}
       </div>
       <div className="terminal-input-container">
-        <span className="terminal-prompt">trueChat&gt;</span>
+        <span className="terminal-prompt">trueChats&gt;</span>
         <input
           ref={inputRef}
           type="text"

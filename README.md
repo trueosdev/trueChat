@@ -1,4 +1,4 @@
-# trueChat
+# trueChats
 
 A modern, real-time chat application built with Next.js, Supabase, and reusable chat UI components.
 
@@ -19,7 +19,7 @@ A modern, real-time chat application built with Next.js, Supabase, and reusable 
 ## 📦 Monorepo Structure
 
 ```
-trueChat/
+trueChats/
 ├── apps/
 │   ├── www/           # Main chat application
 │   └── docs/          # Component documentation (Nextra)

@@ -20,7 +20,7 @@ const questrial = Questrial({
 });
 
 export const metadata: Metadata = {
-  title: "trueChat",
+  title: "trueChats",
   description: "Always true.",
 };
 

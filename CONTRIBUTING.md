@@ -1,4 +1,4 @@
-# Contributing to trueChat
+# Contributing to trueChats
 
 ## Repository Access Rules
 

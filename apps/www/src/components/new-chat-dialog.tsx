@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Search, X } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar, AvatarImage } from './ui/avatar'
+import { getAvatarUrl } from '@/lib/utils'
 import { getUsers } from '@/lib/services/users'
 import { createConversation } from '@/lib/services/conversations'
 import { useAuth } from '@/hooks/useAuth'
@@ -107,7 +108,7 @@ export function NewChatDialog({ open, onOpenChange, onConversationCreated }: New
                   className="w-full flex items-center gap-3 p-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
                 >
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={user.avatar_url || ''} alt={user.name} />
+                    <AvatarImage src={getAvatarUrl(user.avatar_url)} alt={user.name} />
                   </Avatar>
                   <div className="flex-1 text-left">
                     <p className="font-medium text-black dark:text-white">

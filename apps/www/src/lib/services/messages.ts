@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/client'
 import type { Message } from '@/app/data'
 import type { AttachmentData } from './attachments'
+import { getAvatarUrl } from '../utils'
 
 export interface MessageWithUser extends Message {
   id: string
@@ -68,7 +69,7 @@ export async function getMessages(conversationId: string): Promise<MessageWithUs
         hour12: true,
       }),
       name: sender.fullname || sender.username || 'Unknown',
-      avatar: sender.avatar_url || '',
+      avatar: getAvatarUrl(sender.avatar_url),
       sender: {
         id: sender.id,
         username: sender.username,
@@ -141,7 +142,7 @@ export async function sendMessage(
       hour12: true,
     }),
     name: senderData.fullname || senderData.username || 'Unknown',
-    avatar: senderData.avatar_url || '',
+    avatar: getAvatarUrl(senderData.avatar_url),
     sender: {
       id: senderData.id,
       username: senderData.username,
@@ -191,7 +192,7 @@ export function subscribeToMessages(
             hour12: true,
           }),
           name: sender?.fullname || sender?.username || 'Unknown',
-          avatar: sender?.avatar_url || '',
+          avatar: getAvatarUrl(sender?.avatar_url),
           sender: {
             id: sender?.id || msg.sender_id,
             username: sender?.username || null,
@@ -235,7 +236,7 @@ export function subscribeToMessages(
             hour12: true,
           }),
           name: sender?.fullname || sender?.username || 'Unknown',
-          avatar: sender?.avatar_url || '',
+          avatar: getAvatarUrl(sender?.avatar_url),
           sender: {
             id: sender?.id || msg.sender_id,
             username: sender?.username || null,

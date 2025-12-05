@@ -6,7 +6,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { Sidebar } from "../sidebar";
 import { Chat } from "./chat";
 import { useAuth } from "@/hooks/useAuth";
@@ -203,9 +203,9 @@ export function ChatLayout({
                     name: "Group",
                     message: conv.last_message.content,
                     timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
-                    avatar: "",
+                    avatar: getAvatarUrl(""),
                   }] : [],
-                  avatar: "",
+                  avatar: getAvatarUrl(""),
                   variant: selectedConversationId === conv.id ? "secondary" : "ghost",
                   hasUnread: (unreadCounts[conv.id] || 0) > 0,
                   isGroup: true,
@@ -220,9 +220,9 @@ export function ChatLayout({
                     name: conv.other_user?.fullname || conv.other_user?.username || "Unknown",
                     message: conv.last_message.content,
                     timestamp: new Date(conv.last_message.created_at).toLocaleTimeString(),
-                    avatar: conv.other_user?.avatar_url || "",
+                    avatar: getAvatarUrl(conv.other_user?.avatar_url),
                   }] : [],
-                  avatar: conv.other_user?.avatar_url || "",
+                  avatar: getAvatarUrl(conv.other_user?.avatar_url),
                   variant: selectedConversationId === conv.id ? "secondary" : "ghost",
                   hasUnread: (unreadCounts[conv.id] || 0) > 0,
                   isGroup: false,

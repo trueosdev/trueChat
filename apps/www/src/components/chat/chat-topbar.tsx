@@ -3,7 +3,7 @@ import { Avatar, AvatarImage } from "../ui/avatar";
 import { ConversationWithUser } from "@/app/data";
 import { Info, Phone, Video, Users, Search } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import { subscribeToPresence, type UserPresence } from "@/lib/services/presence";
@@ -92,7 +92,7 @@ export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }
         <div className="relative">
           <Avatar className="h-9 w-9">
             <AvatarImage
-              src={otherUser.avatar_url || ""}
+              src={getAvatarUrl(otherUser.avatar_url)}
               alt={displayName}
             />
           </Avatar>

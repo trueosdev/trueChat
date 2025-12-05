@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MoreHorizontal, SquarePen, Users } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getAvatarUrl } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Tooltip,
@@ -87,7 +87,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
         </div>
       )}
       {isCollapsed && (
-        <div className="flex flex-col items-center gap-1 px-2 pt-4">
+        <div className="flex flex-col items-center gap-3 px-2 pt-4">
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -168,23 +168,29 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                     <button
                       onClick={() => onChatSelect?.(chat.id)}
                       className={cn(
-                        buttonVariants({ variant: chat.variant, size: "icon" }),
-                        "h-9 w-9 relative flex items-center justify-center",
-                        chat.variant === "secondary" &&
-                          "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white",
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-9 w-9 relative flex items-center justify-center rounded-full p-0",
                       )}
                     >
                       {chat.isGroup ? (
-                        <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
+                        <div className={cn(
+                          "h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center",
+                          chat.variant === "secondary" && "ring-2 ring-black dark:ring-white"
+                        )}>
                           <Users size={18} className="text-black dark:text-white" />
                         </div>
                       ) : (
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage
-                            src={chat.avatar}
-                            alt={chat.avatar}
-                          />
-                        </Avatar>
+                        <div className={cn(
+                          "h-9 w-9 rounded-full",
+                          chat.variant === "secondary" && "ring-2 ring-black dark:ring-white"
+                        )}>
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage
+                              src={getAvatarUrl(chat.avatar)}
+                              alt={chat.name}
+                            />
+                          </Avatar>
+                        </div>
                       )}
                       {/* Unread notification indicator */}
                       {chat.hasUnread && (

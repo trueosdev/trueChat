@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getAvatarUrl } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,7 +41,7 @@ export function UserAvatarMenu() {
   if (!user) return null;
 
   const displayName = user.user_metadata?.fullname || user.user_metadata?.username || user.email || "User";
-  const avatarUrl = user.user_metadata?.avatar_url || "";
+  const avatarUrl = getAvatarUrl(user.user_metadata?.avatar_url);
   
   // Get initials for fallback
   const initials = displayName
@@ -63,7 +64,6 @@ export function UserAvatarMenu() {
           <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full p-0">
             <Avatar className="h-9 w-9">
               <AvatarImage src={avatarUrl} alt={displayName} />
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
