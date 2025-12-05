@@ -38,6 +38,7 @@ export interface ConversationWithUser {
   is_group: boolean;
   name: string | null;
   created_by: string | null;
+  icon_name?: string | null;
   last_message: {
     id: string;
     content: string;

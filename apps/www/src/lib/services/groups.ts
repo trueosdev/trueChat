@@ -127,6 +127,7 @@ export async function getGroupConversationById(conversationId: string): Promise<
     is_group: conversation.is_group,
     name: conversation.name,
     created_by: conversation.created_by,
+    icon_name: (conversation as any).icon_name || null,
     last_message: conversation.last_message,
     participants: participantsWithUsers,
     participant_count: participantsWithUsers.length,
@@ -268,6 +269,44 @@ export async function getGroupParticipants(conversationId: string): Promise<Conv
       email: '',
     },
   }))
+}
+
+export async function updateGroupName(
+  conversationId: string,
+  newName: string,
+  updatedBy: string,
+  iconName?: string
+): Promise<boolean> {
+  // Check if the user updating is an admin
+  const { data: adminCheck } = await supabase
+    .from('conversation_participants')
+    .select('role')
+    .eq('conversation_id', conversationId)
+    .eq('user_id', updatedBy)
+    .single()
+
+  if (!adminCheck || adminCheck.role !== 'admin') {
+    console.error('Only admins can update group name')
+    return false
+  }
+
+  const updateData: { name: string; icon_name?: string } = { name: newName }
+  if (iconName !== undefined) {
+    updateData.icon_name = iconName
+  }
+
+  const { error } = await supabase
+    .from('conversations')
+    .update(updateData)
+    .eq('id', conversationId)
+    .eq('is_group', true)
+
+  if (error) {
+    console.error('Error updating group name:', error)
+    return false
+  }
+
+  return true
 }
 
 export function subscribeToGroupParticipants(

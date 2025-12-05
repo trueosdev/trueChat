@@ -1,8 +1,10 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { MoreHorizontal, SquarePen, Users } from "lucide-react";
 import { cn, getAvatarUrl } from "@/lib/utils";
+import * as LucideIcons from 'lucide-react';
 import { buttonVariants } from "@/components/ui/button";
 import {
   Tooltip,
@@ -26,6 +28,7 @@ interface SidebarProps {
     hasUnread?: boolean;
     isGroup?: boolean;
     participantCount?: number;
+    iconName?: string | null;
   }[];
   onClick?: () => void;
   isMobile: boolean;
@@ -39,10 +42,10 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
   return (
     <div
       data-collapsed={isCollapsed}
-      className="relative group flex flex-col h-full bg-muted/10 dark:bg-muted/20 gap-4 p-2 data-[collapsed=true]:p-2 "
+      className="relative group flex flex-col h-full bg-muted/10 dark:bg-muted/20 overflow-hidden"
     >
       {!isCollapsed && (
-        <div className="flex items-center gap-2 px-2 text-left">
+        <div className="flex items-center justify-center gap-2 px-2 pt-4 pb-2 shrink-0">
           <div className="flex items-center gap-2">
             <UserAvatarMenu />
 
@@ -87,7 +90,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
         </div>
       )}
       {isCollapsed && (
-        <div className="flex flex-col items-center gap-3 px-2 pt-4">
+        <div className="flex flex-col items-center gap-3 px-2 pt-4 pb-2 shrink-0">
           <TooltipProvider>
             <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
@@ -140,7 +143,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
           </TooltipProvider>
         </div>
       )}
-      <nav className="grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:items-center group-[[data-collapsed=true]]:px-2 group-[[data-collapsed=true]]:pt-2 group-[[data-collapsed=true]]:gap-3">
+      <nav className="flex-1 overflow-y-auto p-2 grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:items-center group-[[data-collapsed=true]]:px-2 group-[[data-collapsed=true]]:gap-3">
         {loading ? (
           // Loading skeletons
           Array.from({ length: 5 }).map((_, index) => (
@@ -174,22 +177,28 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                     >
                       {chat.isGroup ? (
                         <div className={cn(
-                          "h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center",
+                          "h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center shrink-0 relative",
                           chat.variant === "secondary" && "ring-2 ring-black dark:ring-white"
                         )}>
-                          <Users size={18} className="text-black dark:text-white" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            {(() => {
+                              const iconName = chat.iconName || 'Users'
+                              const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; className?: string }>
+                              return IconComponent ? <IconComponent size={18} className="text-black dark:text-white" /> : <Users size={18} className="text-black dark:text-white" />
+                            })()}
+                          </div>
                         </div>
                       ) : (
                         <div className={cn(
                           "h-9 w-9 rounded-full",
                           chat.variant === "secondary" && "ring-2 ring-black dark:ring-white"
                         )}>
-                          <Avatar className="h-9 w-9">
-                            <AvatarImage
+                        <Avatar className="h-9 w-9">
+                          <AvatarImage
                               src={getAvatarUrl(chat.avatar)}
                               alt={chat.name}
-                            />
-                          </Avatar>
+                          />
+                        </Avatar>
                         </div>
                       )}
                       {/* Unread notification indicator */}
@@ -222,14 +231,20 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
             >
               <div className="relative shrink-0">
                 {chat.isGroup ? (
-                  <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
-                    <Users size={18} className="text-black dark:text-white" />
+                  <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center shrink-0 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {(() => {
+                        const iconName = chat.iconName || 'Users'
+                        const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; className?: string }>
+                        return IconComponent ? <IconComponent size={18} className="text-black dark:text-white" /> : <Users size={18} className="text-black dark:text-white" />
+                      })()}
+                    </div>
                   </div>
                 ) : (
                   <Avatar className="h-9 w-9">
                     <AvatarImage
-                      src={chat.avatar}
-                      alt={chat.avatar}
+                      src={getAvatarUrl(chat.avatar)}
+                      alt={chat.name}
                     />
                   </Avatar>
                 )}

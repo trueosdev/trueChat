@@ -210,6 +210,7 @@ export function ChatLayout({
                   hasUnread: (unreadCounts[conv.id] || 0) > 0,
                   isGroup: true,
                   participantCount: conv.participant_count,
+                  iconName: conv.icon_name || null,
                 }
               } else {
                 return {

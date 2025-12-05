@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { X, UserPlus, MoreVertical, Shield, UserMinus, Search } from 'lucide-react'
+import { X, UserPlus, MoreVertical, Shield, UserMinus, Search, Edit } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar, AvatarImage } from './ui/avatar'
 import { getAvatarUrl } from '@/lib/utils'
@@ -22,9 +22,10 @@ interface GroupMembersDialogProps {
   onOpenChange: (open: boolean) => void
   conversationId: string
   conversationName: string
+  onEditGroup?: () => void
 }
 
-export function GroupMembersDialog({ open, onOpenChange, conversationId, conversationName }: GroupMembersDialogProps) {
+export function GroupMembersDialog({ open, onOpenChange, conversationId, conversationName, onEditGroup }: GroupMembersDialogProps) {
   const { user } = useAuth()
   const [participants, setParticipants] = useState<ConversationParticipant[]>([])
   const [loading, setLoading] = useState(false)
@@ -179,7 +180,15 @@ export function GroupMembersDialog({ open, onOpenChange, conversationId, convers
         ) : (
           <>
             {isAdmin && (
-              <div className="p-2 border-b border-black dark:border-white">
+              <div className="p-2 border-b border-black dark:border-white space-y-1">
+                <Button
+                  onClick={onEditGroup}
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                >
+                  <Edit size={16} />
+                  Edit Group
+                </Button>
                 <Button
                   onClick={handleShowAddMember}
                   variant="ghost"

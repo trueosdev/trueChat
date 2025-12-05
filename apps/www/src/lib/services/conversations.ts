@@ -103,6 +103,7 @@ export async function getConversations(userId: string): Promise<ConversationWith
         is_group: conv.is_group,
         name: conv.name,
         created_by: conv.created_by,
+        icon_name: conv.icon_name || null,
         last_message: conv.last_message,
         participants: participants,
         participant_count: participants.length,
@@ -126,6 +127,7 @@ export async function getConversations(userId: string): Promise<ConversationWith
         is_group: conv.is_group,
         name: conv.name,
         created_by: conv.created_by,
+        icon_name: (conv as any).icon_name || null,
         last_message: conv.last_message,
         other_user: {
           id: otherUser.id,
@@ -225,6 +227,7 @@ export function subscribeToConversations(
             is_group: conv.is_group,
             name: conv.name,
             created_by: conv.created_by,
+            icon_name: conv.icon_name || null,
             last_message: conv.last_message,
             participants: (participants || []).map((p: any) => ({
               ...p,
@@ -300,6 +303,7 @@ export function subscribeToConversations(
             is_group: conv.is_group,
             name: conv.name,
             created_by: conv.created_by,
+            icon_name: conv.icon_name || null,
             last_message: conv.last_message,
             participants: (participants || []).map((p: any) => ({
               ...p,

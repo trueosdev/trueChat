@@ -11,6 +11,7 @@ import type { TypingState } from "@/lib/services/presence";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { GroupMembersDialog } from "../group-members-dialog";
 import { MessageSearchDialog } from "../message-search-dialog";
+import { EditGroupDialog } from "../edit-group-dialog";
 
 interface ChatProps {
   conversation: ConversationWithUser;
@@ -28,6 +29,7 @@ export function Chat({ conversation, isMobile }: ChatProps) {
   const [typingChannel, setTypingChannel] = useState<RealtimeChannel | null>(null);
   const [showMembers, setShowMembers] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showEditGroup, setShowEditGroup] = useState(false);
 
   useEffect(() => {
     if (!conversation || !user) return;
@@ -100,12 +102,30 @@ export function Chat({ conversation, isMobile }: ChatProps) {
       />
 
       {conversation.is_group && (
-        <GroupMembersDialog
-          open={showMembers}
-          onOpenChange={setShowMembers}
-          conversationId={conversation.id}
-          conversationName={conversation.name || "Unnamed Group"}
-        />
+        <>
+          <GroupMembersDialog
+            open={showMembers}
+            onOpenChange={setShowMembers}
+            conversationId={conversation.id}
+            conversationName={conversation.name || "Unnamed Group"}
+            onEditGroup={() => {
+              setShowMembers(false)
+              setShowEditGroup(true)
+            }}
+          />
+          <EditGroupDialog
+            open={showEditGroup}
+            onOpenChange={setShowEditGroup}
+            conversationId={conversation.id}
+            currentName={conversation.name || "Unnamed Group"}
+            currentIcon={conversation.icon_name || null}
+            onGroupUpdated={() => {
+              // The real-time subscription should handle the update
+              // But we can also trigger a page refresh if needed
+              window.location.reload()
+            }}
+          />
+        </>
       )}
       <MessageSearchDialog
         open={showSearch}

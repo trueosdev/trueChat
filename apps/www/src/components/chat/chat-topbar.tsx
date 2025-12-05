@@ -4,6 +4,7 @@ import { ConversationWithUser } from "@/app/data";
 import { Info, Phone, Video, Users, Search } from "lucide-react";
 import Link from "next/link";
 import { cn, getAvatarUrl } from "@/lib/utils";
+import * as LucideIcons from 'lucide-react';
 import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import { subscribeToPresence, type UserPresence } from "@/lib/services/presence";
@@ -40,11 +41,17 @@ export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }
   }, [user, conversation]);
 
   if (conversation.is_group) {
+    const iconName = conversation.icon_name || 'Users'
+    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{ size?: number; className?: string }>
+    const GroupIcon = IconComponent || Users
+    
     return (
       <ExpandableChatHeader className="px-2 py-3 sm:px-4">
         <div className="flex items-center gap-3 flex-1">
-          <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center">
-            <Users size={18} className="text-black dark:text-white" />
+          <div className="h-9 w-9 bg-black/10 dark:bg-white/10 rounded-full flex items-center justify-center shrink-0 relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <GroupIcon size={18} className="text-black dark:text-white" />
+            </div>
           </div>
           {onShowSearch && (
             <button
