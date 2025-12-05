@@ -62,12 +62,7 @@ export function getAllCommands(registry: CommandRegistry): CommandHandler[] {
 
 export function getAllCommandNames(registry: CommandRegistry): string[] {
   // Get all unique command names and aliases
-  const commandNames = new Set<string>();
-  
-  for (const [name] of registry) {
-    commandNames.add(name);
-  }
-  
-  return Array.from(commandNames).sort();
+  // Convert Map.keys() iterator to array to avoid downlevelIteration issues
+  return Array.from(registry.keys()).sort();
 }
 
