@@ -4,7 +4,7 @@ import { formatTable } from "../output-formatter";
 export const whoamiCommand: CommandHandler = {
   name: "whoami",
   description: "Display current user information",
-  usage: "/whoami",
+  usage: "whoami",
   handler: async (args, flags, context) => {
     if (!context.user) {
       return ["Not authenticated. Please log in."];

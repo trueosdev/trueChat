@@ -7,7 +7,7 @@ export const sendCommand: CommandHandler = {
   name: "send",
   aliases: ["s", "msg"],
   description: "Send a message to the current conversation",
-  usage: '/send "message" | /send [user] "message"',
+  usage: 'send "message" | send [user] "message"',
   handler: async (args, flags, context) => {
     if (!context.user) {
       return ["Not authenticated. Please log in."];
@@ -15,8 +15,8 @@ export const sendCommand: CommandHandler = {
 
     if (args.length === 0) {
       return [
-        "Usage: /send \"message\"",
-        "  or:   /send [user] \"message\"",
+        "Usage: send \"message\"",
+        "  or:   send [user] \"message\"",
         "",
         "Send a message to the current conversation or to a specific user.",
       ];
@@ -25,35 +25,40 @@ export const sendCommand: CommandHandler = {
     let targetConversationId = context.currentConversationId;
     let messageContent = "";
 
-    // Check if first arg is a user identifier
-    if (args.length >= 2 && !args[0].startsWith('"') && !args[0].startsWith("'")) {
-      // First arg might be a user, try to find conversation
-      const conversations = context.store.conversations;
-      const userArg = args[0];
-      
-      // Try to find user and their conversation
-      const conversation = conversations.find(c => 
-        !c.is_group && (
-          c.other_user?.username?.toLowerCase() === userArg.toLowerCase() ||
-          c.other_user?.email?.toLowerCase() === userArg.toLowerCase()
-        )
-      );
-
-      if (conversation) {
-        targetConversationId = conversation.id;
-        // Join remaining args as message
-        messageContent = args.slice(1).join(" ").replace(/^["']|["']$/g, "");
-      } else {
-        return [`User '${userArg}' not found in your conversations. Use '/chat ${userArg}' first.`];
-      }
-    } else {
-      // All args are the message
+    // If we have a current conversation, treat all args as the message (easy mode!)
+    if (targetConversationId) {
       messageContent = args.join(" ").replace(/^["']|["']$/g, "");
+    } else {
+      // No current conversation - check if first arg is a user identifier
+      if (args.length >= 2 && !args[0].startsWith('"') && !args[0].startsWith("'")) {
+        // First arg might be a user, try to find conversation
+        const conversations = context.store.conversations;
+        const userArg = args[0];
+        
+        // Try to find user and their conversation
+        const conversation = conversations.find(c => 
+          !c.is_group && (
+            c.other_user?.username?.toLowerCase() === userArg.toLowerCase() ||
+            c.other_user?.email?.toLowerCase() === userArg.toLowerCase()
+          )
+        );
+
+        if (conversation) {
+          targetConversationId = conversation.id;
+          // Join remaining args as message
+          messageContent = args.slice(1).join(" ").replace(/^["']|["']$/g, "");
+        } else {
+          return [`User '${userArg}' not found in your conversations. Use 'chat ${userArg}' first.`];
+        }
+      } else {
+        // All args are the message, but no current conversation
+        messageContent = args.join(" ").replace(/^["']|["']$/g, "");
+      }
     }
 
     if (!targetConversationId) {
       return [
-        "No active conversation. Use '/chat [user]' to start a conversation first.",
+        "No active conversation. Use 'chat [user]' to start a conversation first.",
       ];
     }
 

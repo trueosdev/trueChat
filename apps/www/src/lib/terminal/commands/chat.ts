@@ -6,7 +6,7 @@ export const chatCommand: CommandHandler = {
   name: "chat",
   aliases: ["open", "c"],
   description: "Open or switch to a conversation",
-  usage: "/chat [user] | /chat list | /chat [id]",
+  usage: "chat [user] | chat list | chat [id]",
   handler: async (args, flags, context) => {
     if (!context.user) {
       return ["Not authenticated. Please log in."];
@@ -19,7 +19,7 @@ export const chatCommand: CommandHandler = {
         context.store.setConversations(conversations);
         
         if (conversations.length === 0) {
-          return ["No conversations found. Use '/chat <username>' to start a new chat."];
+          return ["No conversations found. Use 'chat <username>' to start a new chat."];
         }
 
         const lines: string[] = [
@@ -36,7 +36,7 @@ export const chatCommand: CommandHandler = {
         }
 
         lines.push("");
-        lines.push("Use '/chat <username>' or '/chat <id>' to open a conversation.");
+        lines.push("Use 'chat <username>' or 'chat <id>' to open a conversation.");
 
         return lines;
       } catch (error) {
@@ -74,7 +74,7 @@ export const chatCommand: CommandHandler = {
           );
 
           if (!user) {
-            return [`User '${identifier}' not found. Use '/list users' to see all users.`];
+            return [`User '${identifier}' not found. Use 'list users' to see all users.`];
           }
 
           // Check if conversation already exists

@@ -6,7 +6,7 @@ export const listCommand: CommandHandler = {
   name: "list",
   aliases: ["ls"],
   description: "List conversations or users",
-  usage: "/list [users|chats]",
+  usage: "list [users|chats]",
   handler: async (args, flags, context) => {
     const type = args[0]?.toLowerCase() || "chats";
 
@@ -56,7 +56,7 @@ export const listCommand: CommandHandler = {
       ];
     } else {
       return [
-        "Usage: /list [users|chats]",
+        "Usage: list [users|chats]",
         "  users  - List all users",
         "  chats  - List all conversations (default)",
       ];

@@ -60,3 +60,14 @@ export function getAllCommands(registry: CommandRegistry): CommandHandler[] {
   return result;
 }
 
+export function getAllCommandNames(registry: CommandRegistry): string[] {
+  // Get all unique command names and aliases
+  const commandNames = new Set<string>();
+  
+  for (const [name] of registry) {
+    commandNames.add(name);
+  }
+  
+  return Array.from(commandNames).sort();
+}
+

@@ -7,12 +7,8 @@ export interface ParsedCommand {
 export function parseCommand(input: string): ParsedCommand {
   const trimmed = input.trim();
   
-  if (!trimmed.startsWith("/")) {
-    throw new Error("Commands must start with '/'");
-  }
-
-  // Remove leading slash
-  const withoutSlash = trimmed.slice(1).trim();
+  // Remove leading slash if present (for backwards compatibility)
+  const withoutSlash = trimmed.startsWith("/") ? trimmed.slice(1).trim() : trimmed;
   
   // Split by spaces, handling quoted strings
   const parts: string[] = [];

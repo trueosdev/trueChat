@@ -1,12 +1,12 @@
-/* Terminal Mode Styling */
+/* Terminal Mode Styling - macOS Terminal Style */
 .terminal-mode {
-  font-family: 'Courier New', 'Monaco', 'Consolas', 'Menlo', monospace !important;
-  background-color: #000000 !important;
-  color: #00ff00 !important;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace !important;
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
 }
 
 .terminal-mode * {
-  font-family: 'Courier New', 'Monaco', 'Consolas', 'Menlo', monospace !important;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace !important;
 }
 
 .terminal-container {
@@ -15,124 +15,100 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #000000;
-  color: #00ff00;
-  font-family: 'Courier New', 'Monaco', 'Consolas', 'Menlo', monospace;
+  background-color: #1e1e1e;
+  color: #ffffff;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  padding: 0;
   overflow: hidden;
 }
 
 .terminal-output {
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
-  font-size: 14px;
-  line-height: 1.6;
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.2;
   white-space: pre-wrap;
   word-wrap: break-word;
+  color: #ffffff;
 }
 
 .terminal-output::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 .terminal-output::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: transparent;
 }
 
 .terminal-output::-webkit-scrollbar-thumb {
-  background: #00ff00;
-  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 .terminal-output::-webkit-scrollbar-thumb:hover {
-  background: #00cc00;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .terminal-input-container {
   display: flex;
   align-items: center;
-  padding: 10px;
-  border-top: 2px solid #00ff00;
-  background-color: #0a0a0a;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #1e1e1e;
 }
 
 .terminal-prompt {
-  color: #00ff00;
+  color: #4a9eff;
   margin-right: 8px;
-  font-weight: bold;
+  font-weight: 500;
   user-select: none;
+  font-size: 13px;
 }
 
 .terminal-input {
   flex: 1;
   background: transparent;
   border: none;
-  color: #00ff00;
-  font-family: 'Courier New', 'Monaco', 'Consolas', 'Menlo', monospace;
-  font-size: 14px;
+  color: #ffffff;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
   outline: none;
-  caret-color: #00ff00;
+  caret-color: #ffffff;
 }
 
 .terminal-input::placeholder {
-  color: #006600;
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .terminal-line {
-  margin-bottom: 2px;
+  margin-bottom: 0;
+  line-height: 1.2;
 }
 
 .terminal-error {
-  color: #ff4444;
+  color: #ff6b6b;
 }
 
 .terminal-success {
-  color: #00ff00;
+  color: #51cf66;
 }
 
 .terminal-info {
-  color: #00ffff;
+  color: #4dabf7;
 }
 
 .terminal-warning {
-  color: #ffaa00;
-}
-
-/* ASCII Art Borders */
-.terminal-border {
-  border: 1px solid #00ff00;
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-}
-
-/* Scanline effect (optional) */
-.terminal-scanline {
-  position: relative;
-}
-
-.terminal-scanline::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    transparent 50%,
-    rgba(0, 255, 0, 0.03) 50%
-  );
-  background-size: 100% 4px;
-  pointer-events: none;
-  z-index: 1;
+  color: #ffd43b;
 }
 
 /* Terminal table styling */
 .terminal-table {
-  color: #00ff00;
-  font-family: 'Courier New', 'Monaco', 'Consolas', 'Menlo', monospace;
+  color: #ffffff;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 /* Blinking cursor */
@@ -143,9 +119,9 @@
 
 .terminal-cursor {
   display: inline-block;
-  width: 8px;
+  width: 7px;
   height: 16px;
-  background-color: #00ff00;
+  background-color: #ffffff;
   animation: blink 1s infinite;
   margin-left: 2px;
 }

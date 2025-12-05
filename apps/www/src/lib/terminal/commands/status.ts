@@ -5,7 +5,7 @@ export const statusCommand: CommandHandler = {
   name: "status",
   aliases: ["stat"],
   description: "Show connection status and system information",
-  usage: "/status",
+  usage: "status",
   handler: async (args, flags, context) => {
     const conversations = context.store.conversations;
     const unreadCounts = context.store.unreadCounts;

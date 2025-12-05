@@ -5,7 +5,7 @@ export const themeCommand: CommandHandler = {
   name: "theme",
   aliases: ["color"],
   description: "Change color theme",
-  usage: "/theme [name] | /theme list",
+  usage: "theme [name] | theme list",
   handler: async (args, flags, context) => {
     const themes = context.colorThemes || colorThemes;
     
@@ -21,7 +21,7 @@ export const themeCommand: CommandHandler = {
       }
       
       lines.push("");
-      lines.push("Usage: /theme <name>");
+      lines.push("Usage: theme <name>");
       
       return lines;
     } else {
@@ -31,7 +31,7 @@ export const themeCommand: CommandHandler = {
       );
       
       if (!theme) {
-        return [`Theme '${themeName}' not found. Type '/theme list' to see available themes.`];
+        return [`Theme '${themeName}' not found. Type 'theme list' to see available themes.`];
       }
       
       // Change theme if setColorTheme is available in context
@@ -42,7 +42,7 @@ export const themeCommand: CommandHandler = {
       
       return [
         `Theme '${theme.name}' selected.`,
-        "Note: Theme changes require GUI mode. Use '/exit' to return to GUI and apply theme changes.",
+        "Note: Theme changes require GUI mode. Use 'exit' to return to GUI and apply theme changes.",
       ];
     }
   },

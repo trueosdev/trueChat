@@ -6,7 +6,7 @@ export const helpCommand: CommandHandler = {
   name: "help",
   aliases: ["h", "?"],
   description: "Show help information",
-  usage: "/help [command]",
+  usage: "help [command]",
   handler: async (args, flags, context) => {
     const registry = createCommandRegistry();
     
@@ -19,13 +19,13 @@ export const helpCommand: CommandHandler = {
         ...formatTable(
           ["Command", "Aliases", "Description"],
           commands.map(cmd => [
-            `/${cmd.name}`,
+            cmd.name,
             cmd.aliases ? cmd.aliases.join(", ") : "",
             cmd.description,
           ])
         ),
         "",
-        "Type '/help <command>' for detailed information about a specific command.",
+        "Type 'help <command>' for detailed information about a specific command.",
       ];
       return lines;
     } else {
@@ -34,11 +34,11 @@ export const helpCommand: CommandHandler = {
       const command = registry.get(commandName);
       
       if (!command) {
-        return [`Command '/${commandName}' not found. Type '/help' to see all commands.`];
+        return [`Command '${commandName}' not found. Type 'help' to see all commands.`];
       }
       
       return [
-        `Command: /${command.name}`,
+        `Command: ${command.name}`,
         `Description: ${command.description}`,
         `Usage: ${command.usage}`,
         command.aliases ? `Aliases: ${command.aliases.join(", ")}` : "",
