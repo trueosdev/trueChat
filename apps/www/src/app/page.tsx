@@ -1,6 +1,5 @@
 "use client";
 
-import { cookies } from "next/headers";
 import { ChatLayout } from "@/components/chat/chat-layout";
 import { FooterText } from "@/components/footer-text";
 import { Terminal } from "@/components/terminal/terminal";

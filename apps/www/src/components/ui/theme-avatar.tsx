@@ -2,9 +2,13 @@
 
 import { AvatarImage } from "./avatar";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import type { ComponentPropsWithoutRef } from "react";
 
-interface ThemeAvatarImageProps extends React.ComponentPropsWithoutRef<typeof AvatarImage> {
+type AvatarImageProps = ComponentPropsWithoutRef<typeof AvatarImage>;
+
+interface ThemeAvatarImageProps extends Omit<AvatarImageProps, 'src'> {
   avatarUrl?: string | null;
+  alt?: string;
 }
 
 /**

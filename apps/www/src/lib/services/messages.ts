@@ -10,6 +10,9 @@ export interface MessageWithUser extends Message {
   content: string
   created_at: string
   read_at?: string | null
+  reply_to?: string | null
+  edited_at?: string | null
+  likes?: string[]
   attachment_url?: string | null
   attachment_type?: string | null
   attachment_name?: string | null
@@ -51,6 +54,9 @@ export async function getMessages(conversationId: string): Promise<MessageWithUs
       avatar_url: null,
     }
 
+    // Parse likes array from JSONB
+    const likes = Array.isArray(msg.likes) ? msg.likes : (msg.likes ? JSON.parse(JSON.stringify(msg.likes)) : [])
+
     return {
       id: msg.id,
       sender_id: msg.sender_id,
@@ -58,6 +64,9 @@ export async function getMessages(conversationId: string): Promise<MessageWithUs
       content: msg.content,
       created_at: msg.created_at,
       read_at: msg.read_at,
+      reply_to: msg.reply_to || null,
+      edited_at: msg.edited_at || null,
+      likes: likes,
       attachment_url: msg.attachment_url,
       attachment_type: msg.attachment_type,
       attachment_name: msg.attachment_name,
@@ -84,7 +93,8 @@ export async function sendMessage(
   conversationId: string,
   content: string,
   senderId: string,
-  attachment?: AttachmentData
+  attachment?: AttachmentData,
+  replyToId?: string
 ): Promise<MessageWithUser | null> {
   const messageData: any = {
     conversation_id: conversationId,
@@ -97,6 +107,10 @@ export async function sendMessage(
     messageData.attachment_type = attachment.type
     messageData.attachment_name = attachment.name
     messageData.attachment_size = attachment.size
+  }
+
+  if (replyToId) {
+    messageData.reply_to = replyToId
   }
 
   const { data, error } = await supabase
@@ -124,6 +138,8 @@ export async function sendMessage(
     avatar_url: null,
   }
 
+  const likes = Array.isArray(data.likes) ? data.likes : (data.likes ? JSON.parse(JSON.stringify(data.likes)) : [])
+
   return {
     id: data.id,
     sender_id: data.sender_id,
@@ -131,6 +147,9 @@ export async function sendMessage(
     content: data.content,
     created_at: data.created_at,
     read_at: data.read_at,
+    reply_to: data.reply_to || null,
+    edited_at: data.edited_at || null,
+    likes: likes,
     attachment_url: data.attachment_url,
     attachment_type: data.attachment_type,
     attachment_name: data.attachment_name,
@@ -218,6 +237,8 @@ export function subscribeToMessages(
           .eq('id', msg.sender_id)
           .single()
 
+        const likes = Array.isArray(msg.likes) ? msg.likes : (msg.likes ? JSON.parse(JSON.stringify(msg.likes)) : [])
+
         callback({
           id: msg.id,
           sender_id: msg.sender_id,
@@ -225,6 +246,9 @@ export function subscribeToMessages(
           content: msg.content,
           created_at: msg.created_at,
           read_at: msg.read_at,
+          reply_to: msg.reply_to || null,
+          edited_at: msg.edited_at || null,
+          likes: likes,
           attachment_url: msg.attachment_url,
           attachment_type: msg.attachment_type,
           attachment_name: msg.attachment_name,
@@ -328,6 +352,105 @@ export async function getUnreadCounts(
   } catch (error) {
     console.error('Error getting unread counts:', error)
     return {}
+  }
+}
+
+export async function toggleMessageLike(
+  messageId: string,
+  userId: string
+): Promise<boolean> {
+  try {
+    // Get current message to check likes
+    const { data: message, error: fetchError } = await supabase
+      .from('messages')
+      .select('likes')
+      .eq('id', messageId)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching message:', fetchError)
+      return false
+    }
+
+    // Parse likes array
+    const likes = Array.isArray(message.likes) 
+      ? message.likes 
+      : (message.likes ? JSON.parse(JSON.stringify(message.likes)) : [])
+
+    // Toggle like
+    const userIdStr = userId
+    const isLiked = likes.includes(userIdStr)
+    const newLikes = isLiked
+      ? likes.filter((id: string) => id !== userIdStr)
+      : [...likes, userIdStr]
+
+    // Update message
+    const { error: updateError } = await supabase
+      .from('messages')
+      .update({ likes: newLikes })
+      .eq('id', messageId)
+
+    if (updateError) {
+      console.error('Error toggling like:', updateError)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error toggling like:', error)
+    return false
+  }
+}
+
+export async function replyToMessage(
+  conversationId: string,
+  content: string,
+  senderId: string,
+  replyToId: string,
+  attachment?: AttachmentData
+): Promise<MessageWithUser | null> {
+  return sendMessage(conversationId, content, senderId, attachment, replyToId)
+}
+
+export async function editMessage(
+  messageId: string,
+  newContent: string,
+  userId: string
+): Promise<boolean> {
+  try {
+    // First verify the user owns this message
+    const { data: message, error: fetchError } = await supabase
+      .from('messages')
+      .select('sender_id')
+      .eq('id', messageId)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching message:', fetchError)
+      return false
+    }
+
+    if (message.sender_id !== userId) {
+      console.error('User does not own this message')
+      return false
+    }
+
+    // Update message content (edited_at will be set by trigger)
+    const { error: updateError } = await supabase
+      .from('messages')
+      .update({ content: newContent.trim() })
+      .eq('id', messageId)
+      .eq('sender_id', userId)
+
+    if (updateError) {
+      console.error('Error editing message:', updateError)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error editing message:', error)
+    return false
   }
 }
 

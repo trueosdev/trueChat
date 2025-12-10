@@ -11,6 +11,9 @@ export interface Message {
   conversation_id?: string;
   created_at?: string;
   read_at?: string | null;
+  reply_to?: string | null;
+  edited_at?: string | null;
+  likes?: string[];
   attachment_url?: string | null;
   attachment_type?: string | null;
   attachment_name?: string | null;

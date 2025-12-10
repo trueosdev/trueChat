@@ -7,7 +7,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { AuthProvider } from "@/components/auth/auth-provider";
@@ -36,9 +35,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const layout = cookies().get("react-resizable-panels:layout");
-  const defaultLayout = layout ? JSON.parse(layout.value) : undefined;
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={questrial.className}>

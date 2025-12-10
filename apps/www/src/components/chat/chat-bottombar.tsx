@@ -34,11 +34,13 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const addMessage = useChatStore((state) => state.addMessage);
+  const replyingTo = useChatStore((state) => state.replyingTo);
+  const setReplyingTo = useChatStore((state) => state.setReplyingTo);
   const [selectedLoading, setSelectedLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
@@ -75,6 +77,10 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
     const file = e.target.files?.[0];
     if (!file) return;
     
+    processFile(file);
+  };
+
+  const processFile = (file: File) => {
     // Validate file size (10MB)
     if (file.size > 10 * 1024 * 1024) {
       alert('File size must be less than 10MB');
@@ -92,6 +98,32 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
       reader.readAsDataURL(file);
     } else {
       setFilePreviewUrl(null);
+    }
+  };
+
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    // Check if clipboard contains image data
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      // Check if the item is an image
+      if (item.type.indexOf('image') !== -1) {
+        e.preventDefault(); // Prevent pasting image data as text
+        
+        const blob = item.getAsFile();
+        if (!blob) return;
+
+        // Convert blob to File with a proper name
+        const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+          type: blob.type || 'image/png',
+        });
+
+        processFile(file);
+        return;
+      }
     }
   };
 
@@ -140,12 +172,14 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
         conversationId, 
         message.trim() || ' ',  // Space if only attachment
         user.id,
-        attachment
+        attachment,
+        replyingTo?.id as string | undefined
       );
       
       if (sentMessage) {
         addMessage(sentMessage);
         setMessage("");
+        setReplyingTo(null);
         setSelectedFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -192,17 +226,36 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
   };
 
   return (
-    <div className="px-2 py-4 flex justify-between w-full items-center gap-2 relative">
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-        onChange={handleFileSelect}
-        className="hidden"
-        disabled={selectedLoading || uploading}
-      />
+    <div className="relative w-full">
+      {/* Reply preview */}
+      {replyingTo && (
+        <div className="absolute bottom-full left-0 right-0 mb-2 px-4 py-2 bg-muted/50 border border-border rounded-lg flex items-center justify-between gap-2 z-10">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-muted-foreground mb-1">Replying to {replyingTo.name}</div>
+            <div className="text-sm truncate">{replyingTo.message || '(attachment)'}</div>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 shrink-0"
+            onClick={() => setReplyingTo(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
       
+      <div className="px-2 py-4 flex justify-between w-full items-center gap-2">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          onChange={handleFileSelect}
+          className="hidden"
+          disabled={selectedLoading || uploading}
+        />
+
       {/* File preview */}
       {selectedFile && (
         <FilePreview
@@ -251,6 +304,7 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
             ref={inputRef}
             onKeyDown={handleKeyPress}
             onChange={handleInputChange}
+            onPaste={handlePaste}
             placeholder="Type a message..."
             className="rounded-full"
           />
@@ -292,6 +346,7 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
           </Button>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }

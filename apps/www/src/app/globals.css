@@ -1,9 +1,9 @@
+/* React Image Crop Styles - must be at top before other rules */
+@import 'react-image-crop/dist/ReactCrop.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* React Image Crop Styles */
-@import 'react-image-crop/dist/ReactCrop.css';
 
 
 @layer base {

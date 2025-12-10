@@ -144,7 +144,7 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
           </TooltipProvider>
         </div>
       )}
-      <nav className="flex-1 overflow-y-auto p-2 grid gap-1 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:items-center group-[[data-collapsed=true]]:px-2 group-[[data-collapsed=true]]:gap-3">
+      <nav className="flex-1 overflow-y-auto p-2 grid gap-1 content-start group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:items-center group-[[data-collapsed=true]]:px-2 group-[[data-collapsed=true]]:gap-3">
         {loading ? (
           // Loading skeletons
           Array.from({ length: 5 }).map((_, index) => (
