@@ -116,8 +116,22 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
         const blob = item.getAsFile();
         if (!blob) return;
 
+        // Determine file extension based on MIME type
+        let extension = 'png';
+        if (item.type === 'image/heic' || item.type === 'image/heif') {
+          extension = 'heic';
+        } else if (item.type === 'image/jpeg' || item.type === 'image/jpg') {
+          extension = 'jpg';
+        } else if (item.type === 'image/gif') {
+          extension = 'gif';
+        } else if (item.type === 'image/webp') {
+          extension = 'webp';
+        } else if (item.type === 'image/png') {
+          extension = 'png';
+        }
+
         // Convert blob to File with a proper name
-        const file = new File([blob], `pasted-image-${Date.now()}.png`, {
+        const file = new File([blob], `pasted-image-${Date.now()}.${extension}`, {
           type: blob.type || 'image/png',
         });
 
@@ -250,7 +264,7 @@ export default function ChatBottombar({ conversationId, isMobile, typingChannel 
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+          accept="image/*,image/heic,image/heif,.heic,.heif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
           onChange={handleFileSelect}
           className="hidden"
           disabled={selectedLoading || uploading}
