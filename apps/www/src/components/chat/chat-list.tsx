@@ -1,7 +1,6 @@
 "use client";
 
 import { Message, ConversationWithUser } from "@/app/data";
-import { cn } from "@/lib/utils";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import React from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -10,17 +9,21 @@ import {
   ChatBubbleMessage,
   ChatBubbleTimestamp,
   ChatBubble,
-  ChatBubbleAction,
-  ChatBubbleActionWrapper,
   ChatMessageList,
 } from "@shadcn-chat/ui";
-import { Forward, Heart, Check, CheckCheck, Download, Pencil } from "lucide-react";
+import { Forward, Download, Pencil, Copy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import type { TypingState } from "@/lib/services/presence";
 import { isImageFile, formatFileSize } from "@/lib/services/attachments";
-import { toggleMessageLike, editMessage } from "@/lib/services/messages";
+import { editMessage } from "@/lib/services/messages";
 import useChatStore from "@/hooks/useChatStore";
 import { useState } from "react";
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+} from "@/components/ui/context-menu";
 
 interface ChatListProps {
   messages: Message[];
@@ -61,17 +64,21 @@ export function ChatList({
     if (message.sender_id !== user?.id) return null;
     
     if (message.read_at) {
-      return <CheckCheck className="inline h-3 w-3 ml-1 text-foreground opacity-100" />;
+      return (
+        <img 
+          src="/read.svg" 
+          alt="Read" 
+          className="inline-block h-3 w-3 align-baseline opacity-100" 
+        />
+      );
     }
-    return <Check className="inline h-3 w-3 ml-1 text-foreground opacity-40" />;
-  };
-
-  const handleLike = async (message: Message) => {
-    if (!user || !message.id) return;
-    const success = await toggleMessageLike(message.id as string, user.id);
-    if (success) {
-      // Update will come via real-time subscription
-    }
+    return (
+      <img 
+        src="/delivered.svg" 
+        alt="Delivered" 
+        className="inline-block h-3 w-3 align-baseline opacity-40" 
+      />
+    );
   };
 
   const handleReply = (message: Message) => {
@@ -99,9 +106,26 @@ export function ChatList({
     setEditContent("");
   };
 
-  const isLiked = (message: Message): boolean => {
-    if (!user || !message.likes) return false;
-    return message.likes.includes(user.id);
+  const handleCopy = async (message: Message) => {
+    const textToCopy = message.message || "";
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = textToCopy;
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+      } catch (fallbackErr) {
+        console.error("Fallback copy failed:", fallbackErr);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   return (
@@ -127,9 +151,11 @@ export function ChatList({
                   },
                 }}
                 style={{ originX: 0.5, originY: 0.5 }}
-                className="flex flex-col gap-2 p-4"
+                className="flex flex-col gap-2 group"
               >
-                <ChatBubble variant={variant}>
+                <ContextMenu>
+                  <ContextMenuTrigger asChild>
+                    <ChatBubble variant={variant}>
                   <ThemeChatBubbleAvatar avatarUrl={message.avatar} />
                   <ChatBubbleMessage isLoading={message.isLoading}>
                     {/* Reply context */}
@@ -233,48 +259,66 @@ export function ChatList({
                     ) : (
                       <>
                         {message.message}
-                        {message.timestamp && (
-                          <span className="flex items-center gap-1">
-                            <ChatBubbleTimestamp timestamp={message.timestamp} />
-                            {message.edited_at && (
-                              <span className="text-xs text-muted-foreground italic">(edited)</span>
-                            )}
-                            {renderReadReceipt(message)}
-                          </span>
+                        {message.edited_at && (
+                          <span className="text-xs text-muted-foreground italic">   (edited)</span>
                         )}
                       </>
                     )}
                   </ChatBubbleMessage>
-                  <ChatBubbleActionWrapper>
-                    {/* Heart icon for like */}
-                    <ChatBubbleAction
-                      className="size-7"
-                      icon={
-                        <Heart 
-                          className={cn(
-                            "size-4",
-                            isLiked(message) && "fill-red-500 text-red-500"
-                          )} 
-                        />
-                      }
-                      onClick={() => handleLike(message)}
-                    />
-                    {/* Forward icon for reply */}
-                    <ChatBubbleAction
-                      className="size-7"
-                      icon={<Forward className="size-4" />}
-                      onClick={() => handleReply(message)}
-                    />
-                    {/* Edit icon - only show for own messages */}
-                    {message.sender_id === user?.id && (
-                      <ChatBubbleAction
-                        className="size-7"
-                        icon={<Pencil className="size-4" />}
-                        onClick={() => handleEdit(message)}
-                      />
-                    )}
-                  </ChatBubbleActionWrapper>
+                  {/* Timestamp and read receipt - only show on hover */}
+                  {message.timestamp && (
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-baseline gap-1 justify-end mt-1">
+                      <ChatBubbleTimestamp timestamp={message.timestamp} />
+                      {renderReadReceipt(message)}
+                    </div>
+                  )}
                 </ChatBubble>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    {message.sender_id === user?.id ? (
+                      <>
+                        <ContextMenuItem
+                          onClick={() => handleEdit(message)}
+                          className="cursor-pointer"
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          <span>Edit</span>
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => handleReply(message)}
+                          className="cursor-pointer"
+                        >
+                          <Forward className="mr-2 h-4 w-4" />
+                          <span>Reply</span>
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => handleCopy(message)}
+                          className="cursor-pointer"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          <span>Copy</span>
+                        </ContextMenuItem>
+                      </>
+                    ) : (
+                      <>
+                        <ContextMenuItem
+                          onClick={() => handleReply(message)}
+                          className="cursor-pointer"
+                        >
+                          <Forward className="mr-2 h-4 w-4" />
+                          <span>Reply</span>
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => handleCopy(message)}
+                          className="cursor-pointer"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          <span>Copy</span>
+                        </ContextMenuItem>
+                      </>
+                    )}
+                  </ContextMenuContent>
+                </ContextMenu>
               </motion.div>
             );
           })}
