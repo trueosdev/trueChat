@@ -174,9 +174,11 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
           /* Incoming Requests */
           <div>
             {incomingRequests.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Coffee size={48} className="mx-auto mb-2 opacity-50" />
-                <p>No pending requests</p>
+              <div className="flex items-center justify-center h-full min-h-[400px] text-center text-muted-foreground">
+                <div>
+                  <Coffee size={48} className="mx-auto mb-2 opacity-50" />
+                  <p>No pending requests</p>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
@@ -235,9 +237,11 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
           /* Outgoing Requests */
           <div>
             {outgoingRequests.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Coffee size={48} className="mx-auto mb-2 opacity-50" />
-                <p>No outgoing requests</p>
+              <div className="flex items-center justify-center h-full min-h-[400px] text-center text-muted-foreground">
+                <div>
+                  <Mailbox size={48} className="mx-auto mb-2 opacity-50" />
+                  <p>No outgoing requests</p>
+                </div>
               </div>
             ) : (
               <div className="space-y-2">
