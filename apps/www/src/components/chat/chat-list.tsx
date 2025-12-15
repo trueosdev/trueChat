@@ -267,9 +267,13 @@ export function ChatList({
                   </ChatBubbleMessage>
                   {/* Timestamp and read receipt - only show on hover */}
                   {message.timestamp && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-baseline gap-1 justify-end mt-1">
-                      <ChatBubbleTimestamp timestamp={message.timestamp} />
-                      {renderReadReceipt(message)}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end gap-1 justify-end mt-1">
+                      <ChatBubbleTimestamp timestamp={message.timestamp} createdAt={message.created_at} />
+                      {message.sender_id === user?.id && (
+                        <div className="mb-0.5">
+                          {renderReadReceipt(message)}
+                        </div>
+                      )}
                     </div>
                   )}
                 </ChatBubble>

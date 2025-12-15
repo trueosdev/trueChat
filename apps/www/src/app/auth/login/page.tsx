@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 function LoginForm() {
-  const [email, setEmail] = useState('')
+  const [emailOrUsername, setEmailOrUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -26,7 +26,7 @@ function LoginForm() {
     setError('')
     setLoading(true)
 
-    const { error } = await signIn(email, password)
+    const { error } = await signIn(emailOrUsername, password)
 
     if (error) {
       setError(error.message)
@@ -57,17 +57,17 @@ function LoginForm() {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2 text-black dark:text-white">
-                Email
+              <label htmlFor="emailOrUsername" className="block text-sm font-medium mb-2 text-black dark:text-white">
+                Email or Username
               </label>
               <input
-                id="email"
-                type="email"
+                id="emailOrUsername"
+                type="text"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={emailOrUsername}
+                onChange={(e) => setEmailOrUsername(e.target.value)}
                 className="w-full px-3 py-2 border border-black dark:border-white rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-                placeholder="you@example.com"
+                placeholder="you@example.com or username"
               />
             </div>
 

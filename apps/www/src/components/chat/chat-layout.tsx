@@ -16,8 +16,10 @@ import useChatStore from "@/hooks/useChatStore";
 import type { ConversationWithUser } from "@/app/data";
 import { NewChatDialog } from "../new-chat-dialog";
 import { NewGroupDialog } from "../new-group-dialog";
+import { PendingChatsPage } from "../pending-chats-page";
 import type { ImperativePanelHandle } from "react-resizable-panels";
 import { getUnreadCounts, subscribeToMessages } from "@/lib/services/messages";
+import { getPendingRequests, subscribeToChatRequests } from "@/lib/services/chat-requests";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
@@ -35,9 +37,11 @@ export function ChatLayout({
   const [isMobile, setIsMobile] = useState(false);
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [newGroupOpen, setNewGroupOpen] = useState(false);
+  const [showPendingChats, setShowPendingChats] = useState(false);
   const conversations = useChatStore((state) => state.conversations);
   const selectedConversationId = useChatStore((state) => state.selectedConversationId);
   const unreadCounts = useChatStore((state) => state.unreadCounts);
+  const pendingRequestCount = useChatStore((state) => state.pendingRequestCount);
   const setConversations = useChatStore((state) => state.setConversations);
   const addConversation = useChatStore((state) => state.addConversation);
   const updateConversation = useChatStore((state) => state.updateConversation);
@@ -45,6 +49,7 @@ export function ChatLayout({
   const setLoading = useChatStore((state) => state.setLoading);
   const setUnreadCounts = useChatStore((state) => state.setUnreadCounts);
   const setUnreadCount = useChatStore((state) => state.setUnreadCount);
+  const setPendingRequestCount = useChatStore((state) => state.setPendingRequestCount);
   const sidebarPanelRef = useRef<ImperativePanelHandle>(null);
 
   useEffect(() => {
@@ -75,6 +80,11 @@ export function ChatLayout({
       setUnreadCounts(counts);
     });
 
+    // Load pending requests count
+    getPendingRequests(user.id).then((requests) => {
+      setPendingRequestCount(requests.length);
+    });
+
     // Subscribe to real-time updates
     const unsubscribe = subscribeToConversations(user.id, (conversation) => {
       // Use the store's state directly instead of the stale closure
@@ -88,10 +98,21 @@ export function ChatLayout({
       }
     });
 
+    // Subscribe to chat requests
+    const unsubscribeRequests = subscribeToChatRequests(user.id, (request) => {
+      if (request.status === 'pending') {
+        // Reload pending requests count
+        getPendingRequests(user.id).then((requests) => {
+          setPendingRequestCount(requests.length);
+        });
+      }
+    });
+
     return () => {
       unsubscribe();
+      unsubscribeRequests();
     };
-  }, [user, setConversations, addConversation, updateConversation, setLoading, setUnreadCounts]);
+  }, [user, setConversations, addConversation, updateConversation, setLoading, setUnreadCounts, setPendingRequestCount]);
 
   // Subscribe to all conversations' messages to update unread counts
   useEffect(() => {
@@ -132,7 +153,18 @@ export function ChatLayout({
       const updatedConversations = await getConversations(user.id);
       setConversations(updatedConversations);
       setSelectedConversationId(conversationId);
+      setShowPendingChats(false);
     }
+  };
+
+  const handlePendingChatsClick = () => {
+    setShowPendingChats(true);
+    setSelectedConversationId(null);
+  };
+
+  const handleRequestAccepted = (conversationId: string) => {
+    setShowPendingChats(false);
+    setSelectedConversationId(conversationId);
   };
 
   const handleDoubleClick = () => {
@@ -234,16 +266,21 @@ export function ChatLayout({
             loading={useChatStore.getState().loading}
             onChatSelect={(conversationId) => {
               setSelectedConversationId(conversationId);
+              setShowPendingChats(false);
               // Clear unread count when selecting a conversation
               setUnreadCount(conversationId, 0);
             }}
             onNewChat={() => setNewChatOpen(true)}
             onNewGroup={() => setNewGroupOpen(true)}
+            onPendingChats={handlePendingChatsClick}
+            pendingRequestCount={pendingRequestCount}
           />
         </ResizablePanel>
         <ResizableHandle withHandle onDoubleClick={handleDoubleClick} />
         <ResizablePanel defaultSize={defaultLayout[1]} minSize={30}>
-          {selectedConversation ? (
+          {showPendingChats ? (
+            <PendingChatsPage onRequestAccepted={handleRequestAccepted} />
+          ) : selectedConversation ? (
             <Chat
               conversation={selectedConversation}
               isMobile={isMobile}

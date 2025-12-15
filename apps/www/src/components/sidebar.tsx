@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { MoreHorizontal, SquarePen, Users } from "lucide-react";
+import { MoreHorizontal, SquarePen, Users, Mailbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeAvatarImage } from "./ui/theme-avatar";
 import * as LucideIcons from 'lucide-react';
@@ -36,10 +36,12 @@ interface SidebarProps {
   onChatSelect?: (conversationId: string) => void;
   onNewChat?: () => void;
   onNewGroup?: () => void;
+  onPendingChats?: () => void;
+  pendingRequestCount?: number;
   loading?: boolean;
 }
 
-export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat, onNewGroup, loading = false }: SidebarProps) {
+export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat, onNewGroup, onPendingChats, pendingRequestCount = 0, loading = false }: SidebarProps) {
   return (
     <div
       data-collapsed={isCollapsed}
@@ -65,6 +67,28 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
                 </TooltipTrigger>
                 <TooltipContent side="right">
                   New Chat
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={onPendingChats}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "h-9 w-9 relative",
+                    )}
+                  >
+                    <Mailbox size={23} />
+                    {pendingRequestCount > 0 && (
+                      <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  Pending Chats {pendingRequestCount > 0 && `(${pendingRequestCount})`}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -120,6 +144,28 @@ export function Sidebar({ chats, isCollapsed, isMobile, onChatSelect, onNewChat,
               </TooltipTrigger>
               <TooltipContent side="right">
                 New Chat
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={onPendingChats}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "icon" }),
+                    "h-9 w-9 flex items-center justify-center relative",
+                  )}
+                >
+                  <Mailbox size={23} />
+                  {pendingRequestCount > 0 && (
+                    <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-white border-2 border-background rounded-full" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                Pending Chats {pendingRequestCount > 0 && `(${pendingRequestCount})`}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

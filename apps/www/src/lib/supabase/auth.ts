@@ -17,7 +17,51 @@ export async function signUp(email: string, password: string, username: string, 
   return { data, error }
 }
 
-export async function signIn(email: string, password: string) {
+/**
+ * Get email by username for login purposes
+ * This function uses a database function to find the email associated with a username
+ */
+async function getEmailByUsername(username: string): Promise<string | null> {
+  const { data, error } = await supabase.rpc('get_email_by_username', {
+    p_username: username,
+  })
+
+  if (error || !data) {
+    return null
+  }
+
+  return data
+}
+
+/**
+ * Sign in with either email or username
+ * @param emailOrUsername - User's email address or username
+ * @param password - User's password
+ */
+export async function signIn(emailOrUsername: string, password: string) {
+  // Check if input looks like an email (contains @)
+  const isEmail = emailOrUsername.includes('@')
+  
+  let email = emailOrUsername
+
+  // If it's not an email, try to look up the email by username
+  if (!isEmail) {
+    const foundEmail = await getEmailByUsername(emailOrUsername)
+    if (!foundEmail) {
+      // Return an error if username not found
+      return {
+        data: null,
+        error: {
+          message: 'Invalid login credentials',
+          name: 'AuthApiError',
+          status: 400,
+        } as any,
+      }
+    }
+    email = foundEmail
+  }
+
+  // Sign in with the email
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,

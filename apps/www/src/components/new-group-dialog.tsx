@@ -6,9 +6,11 @@ import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 import { ThemeAvatarImage } from './ui/theme-avatar'
 import { getUsers } from '@/lib/services/users'
-import { createGroupConversation } from '@/lib/services/groups'
+import { createGroupConversation, validateGroupParticipants } from '@/lib/services/groups'
+import { getConversations } from '@/lib/services/conversations'
 import { useAuth } from '@/hooks/useAuth'
 import type { User } from '@/app/data'
+import { supabase } from '@/lib/supabase/client'
 
 interface NewGroupDialogProps {
   open: boolean
@@ -16,23 +18,66 @@ interface NewGroupDialogProps {
   onGroupCreated: (conversationId: string) => void
 }
 
+interface UserWithStatus extends User {
+  canAddToGroup?: boolean
+}
+
 export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupDialogProps) {
   const { user } = useAuth()
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserWithStatus[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState(false)
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set())
   const [groupName, setGroupName] = useState('')
   const [step, setStep] = useState<'select' | 'name'>('select')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) {
+    if (open && user) {
       setLoading(true)
-      getUsers().then((data) => {
+      Promise.all([
+        getUsers(),
+        getConversations(user.id),
+        supabase
+          .from('chat_requests')
+          .select('requester_id, recipient_id')
+          .or(`requester_id.eq.${user.id},recipient_id.eq.${user.id}`)
+          .eq('status', 'accepted')
+      ]).then(([usersData, conversations, { data: acceptedRequests }]) => {
         // Filter out current user
-        const otherUsers = data.filter((u) => u.id !== user?.id)
-        setUsers(otherUsers)
+        const otherUsers = usersData.filter((u) => u.id !== user.id)
+        
+        // Create set of valid user IDs (users with accepted requests or existing conversations)
+        const validUserIds = new Set<string>()
+        
+        // Add users from existing conversations
+        conversations
+          .filter(c => !c.is_group)
+          .forEach(c => {
+            if (c.user1_id === user.id) {
+              validUserIds.add(c.user2_id)
+            } else if (c.user2_id === user.id) {
+              validUserIds.add(c.user1_id)
+            }
+          })
+        
+        // Add users from accepted requests
+        acceptedRequests?.forEach((req: any) => {
+          if (req.requester_id === user.id) {
+            validUserIds.add(req.recipient_id)
+          } else if (req.recipient_id === user.id) {
+            validUserIds.add(req.requester_id)
+          }
+        })
+        
+        // Mark which users can be added to groups
+        const usersWithStatus = otherUsers.map((u) => ({
+          ...u,
+          canAddToGroup: validUserIds.has(String(u.id)),
+        }))
+        
+        setUsers(usersWithStatus)
         setLoading(false)
       })
     } else {
@@ -41,6 +86,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
       setSelectedUserIds(new Set())
       setGroupName('')
       setStep('select')
+      setError(null)
     }
   }, [open, user?.id])
 
@@ -54,6 +100,13 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
   })
 
   const toggleUserSelection = (userId: string) => {
+    const user = users.find(u => String(u.id) === userId)
+    if (user && user.canAddToGroup === false) {
+      const username = user.fullname || user.username || user.email || 'this user'
+      setError(`Hey, man! ${username} hasn't accepted your initial chat invite!`)
+      return
+    }
+    
     const newSelected = new Set(selectedUserIds)
     if (newSelected.has(userId)) {
       newSelected.delete(userId)
@@ -61,6 +114,7 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
       newSelected.add(userId)
     }
     setSelectedUserIds(newSelected)
+    setError(null)
   }
 
   const handleNext = () => {
@@ -73,18 +127,25 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
     if (!user || !groupName.trim() || selectedUserIds.size < 1) return
 
     setCreating(true)
-    const group = await createGroupConversation({
-      name: groupName.trim(),
-      createdBy: String(user.id),
-      participantIds: Array.from(selectedUserIds),
-    })
+    setError(null)
     
-    if (group) {
-      onGroupCreated(String(group.id))
-      onOpenChange(false)
+    try {
+      const group = await createGroupConversation({
+        name: groupName.trim(),
+        createdBy: String(user.id),
+        participantIds: Array.from(selectedUserIds),
+      })
+      
+      if (group) {
+        onGroupCreated(String(group.id))
+        onOpenChange(false)
+      }
+    } catch (err: any) {
+      console.error('Error creating group:', err)
+      setError(err.message || 'Failed to create group. Some users may not have accepted your chat request.')
+    } finally {
+      setCreating(false)
     }
-    
-    setCreating(false)
   }
 
   if (!open) return null
@@ -115,11 +176,19 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                   type="text"
                   placeholder="Search users..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    setError(null)
+                  }}
                   className="w-full pl-10 pr-4 py-2 border border-black dark:border-white rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
                 />
               </div>
-              {selectedUserIds.size > 0 && (
+              {error && (
+                <div className="mt-3 p-2 rounded-md bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
+                  <p className="text-xs text-orange-800 dark:text-orange-200">{error}</p>
+                </div>
+              )}
+              {selectedUserIds.size > 0 && !error && (
                 <div className="mt-3 flex items-center gap-2 text-sm text-black dark:text-white">
                   <Users size={16} />
                   <span>{selectedUserIds.size} selected</span>
@@ -138,21 +207,25 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                 </div>
               ) : (
                 <div className="space-y-1">
-                  {filteredUsers.map((user) => {
-                    const isSelected = selectedUserIds.has(String(user.id))
+                  {filteredUsers.map((userItem) => {
+                    const isSelected = selectedUserIds.has(String(userItem.id))
+                    const canAdd = userItem.canAddToGroup !== false
                     return (
                       <button
-                        key={user.id}
-                        onClick={() => toggleUserSelection(String(user.id))}
+                        key={userItem.id}
+                        onClick={() => toggleUserSelection(String(userItem.id))}
+                        disabled={!canAdd}
                         className={`w-full flex items-center gap-3 p-3 rounded-md transition-colors ${
-                          isSelected 
+                          !canAdd
+                            ? 'opacity-50 cursor-not-allowed'
+                            : isSelected 
                             ? 'bg-black/10 dark:bg-white/10' 
                             : 'hover:bg-black/5 dark:hover:bg-white/5'
                         }`}
                       >
                         <div className="relative">
                           <Avatar className="h-10 w-10">
-                            <ThemeAvatarImage avatarUrl={user.avatar_url} alt={user.name} />
+                            <ThemeAvatarImage avatarUrl={userItem.avatar_url} alt={userItem.name} />
                           </Avatar>
                           {isSelected && (
                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-black dark:bg-white rounded-full flex items-center justify-center">
@@ -164,10 +237,15 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                         </div>
                         <div className="flex-1 text-left">
                           <p className="font-medium text-black dark:text-white">
-                            {user.fullname || user.username || user.email}
+                            {userItem.fullname || userItem.username || userItem.email}
                           </p>
-                          {user.username && (
-                            <p className="text-sm text-black/70 dark:text-white/70">@{user.username}</p>
+                          {userItem.username && (
+                            <p className="text-sm text-black/70 dark:text-white/70">@{userItem.username}</p>
+                          )}
+                          {!canAdd && (
+                            <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                              Hasn't accepted your chat request
+                            </p>
                           )}
                         </div>
                       </button>
@@ -190,6 +268,11 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
         ) : (
           <>
             <div className="p-4 space-y-4 flex-1">
+              {error && (
+                <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-black dark:text-white mb-2">
                   Group Name
@@ -198,7 +281,10 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                   type="text"
                   placeholder="Enter group name..."
                   value={groupName}
-                  onChange={(e) => setGroupName(e.target.value)}
+                  onChange={(e) => {
+                    setGroupName(e.target.value)
+                    setError(null)
+                  }}
                   className="w-full px-4 py-2 border border-black dark:border-white rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
                   autoFocus
                 />

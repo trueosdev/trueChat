@@ -1,5 +1,6 @@
 import { supabase } from '../supabase/client'
 import type { ConversationWithUser, ConversationParticipant } from '@/app/data'
+import { getConversations } from './conversations'
 
 export interface CreateGroupParams {
   name: string
@@ -7,8 +8,97 @@ export interface CreateGroupParams {
   participantIds: string[]
 }
 
+export interface UserValidationResult {
+  userId: string
+  canAdd: boolean
+  reason?: string
+  username?: string
+}
+
+export async function validateGroupParticipants(
+  createdBy: string,
+  participantIds: string[]
+): Promise<{ valid: boolean; invalidUsers: UserValidationResult[] }> {
+  const invalidUsers: UserValidationResult[] = []
+  
+  // Get all conversations for the creator
+  const conversations = await getConversations(createdBy)
+  
+  // Get accepted chat requests
+  const { data: acceptedRequests } = await supabase
+    .from('chat_requests')
+    .select('requester_id, recipient_id')
+    .or(`requester_id.eq.${createdBy},recipient_id.eq.${createdBy}`)
+    .eq('status', 'accepted')
+  
+  // Create a set of user IDs that have accepted requests or existing conversations
+  const validUserIds = new Set<string>()
+  
+  // Add users from existing conversations
+  conversations
+    .filter(c => !c.is_group)
+    .forEach(c => {
+      if (c.user1_id === createdBy) {
+        validUserIds.add(c.user2_id)
+      } else if (c.user2_id === createdBy) {
+        validUserIds.add(c.user1_id)
+      }
+    })
+  
+  // Add users from accepted requests
+  acceptedRequests?.forEach((req: any) => {
+    if (req.requester_id === createdBy) {
+      validUserIds.add(req.recipient_id)
+    } else if (req.recipient_id === createdBy) {
+      validUserIds.add(req.requester_id)
+    }
+  })
+  
+  // Validate each participant
+  for (const userId of participantIds) {
+    if (userId === createdBy) {
+      continue // Creator can always be added
+    }
+    
+    if (!validUserIds.has(userId)) {
+      // Fetch username for error message
+      const { data: user } = await supabase
+        .from('users')
+        .select('username, fullname')
+        .eq('id', userId)
+        .single()
+      
+      invalidUsers.push({
+        userId,
+        canAdd: false,
+        reason: 'has not accepted your chat request',
+        username: user?.username || user?.fullname || 'Unknown',
+      })
+    }
+  }
+  
+  return {
+    valid: invalidUsers.length === 0,
+    invalidUsers,
+  }
+}
+
 export async function createGroupConversation(params: CreateGroupParams): Promise<ConversationWithUser | null> {
   const { name, createdBy, participantIds } = params
+  
+  // Validate participants before creating group
+  const validation = await validateGroupParticipants(createdBy, participantIds)
+  if (!validation.valid) {
+    // Create user-friendly error message
+    const usernames = validation.invalidUsers.map(u => u.username || 'this user')
+    let errorMessage = ''
+    if (validation.invalidUsers.length === 1) {
+      errorMessage = `Hey, man! ${usernames[0]} hasn't accepted your initial chat invite!`
+    } else {
+      errorMessage = `Hey, man! ${usernames.slice(0, -1).join(', ')} and ${usernames[usernames.length - 1]} haven't accepted your initial chat invites!`
+    }
+    throw new Error(errorMessage)
+  }
 
   // Create the group conversation
   const { data: conversation, error: convError } = await supabase

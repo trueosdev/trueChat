@@ -9,6 +9,7 @@ interface State {
   loading: boolean;
   unreadCounts: Record<string, number>;
   replyingTo: Message | null;
+  pendingRequestCount: number;
 }
 
 interface Actions {
@@ -29,6 +30,7 @@ interface Actions {
   setUnreadCounts: (counts: Record<string, number>) => void;
   setUnreadCount: (conversationId: string, count: number) => void;
   setReplyingTo: (message: Message | null) => void;
+  setPendingRequestCount: (count: number) => void;
 }
 
 const useChatStore = create<State & Actions>()((set) => ({
@@ -39,6 +41,7 @@ const useChatStore = create<State & Actions>()((set) => ({
   loading: false,
   unreadCounts: {},
   replyingTo: null,
+  pendingRequestCount: 0,
 
   setInput: (input) => set({ input }),
   handleInputChange: (
@@ -93,6 +96,7 @@ const useChatStore = create<State & Actions>()((set) => ({
     unreadCounts: { ...state.unreadCounts, [conversationId]: count },
   })),
   setReplyingTo: (message) => set({ replyingTo: message }),
+  setPendingRequestCount: (count) => set({ pendingRequestCount: count }),
 }));
 
 export default useChatStore;

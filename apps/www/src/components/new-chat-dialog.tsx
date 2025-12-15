@@ -1,14 +1,16 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, MessageSquare, Mailbox } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 import { ThemeAvatarImage } from './ui/theme-avatar'
 import { getUsers } from '@/lib/services/users'
-import { createConversation } from '@/lib/services/conversations'
+import { createConversation, getConversations } from '@/lib/services/conversations'
+import { createChatRequest, canSendRequest, getCooldownRemaining, type ChatRequest } from '@/lib/services/chat-requests'
 import { useAuth } from '@/hooks/useAuth'
 import type { User } from '@/app/data'
+import { supabase } from '@/lib/supabase/client'
 
 interface NewChatDialogProps {
   open: boolean
@@ -16,21 +18,70 @@ interface NewChatDialogProps {
   onConversationCreated: (conversationId: string) => void
 }
 
+interface UserWithStatus extends User {
+  hasConversation?: boolean
+  canRequest?: boolean
+  cooldownHours?: number | null
+  existingConversationId?: string | null
+}
+
 export function NewChatDialog({ open, onOpenChange, onConversationCreated }: NewChatDialogProps) {
   const { user } = useAuth()
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserWithStatus[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [creating, setCreating] = useState<string | null>(null)
+  const [requesting, setRequesting] = useState<string | null>(null)
 
   useEffect(() => {
-    if (open) {
+    if (open && user) {
       setLoading(true)
-      getUsers().then((data) => {
+      Promise.all([
+        getUsers(),
+        getConversations(user.id)
+      ]).then(([usersData, conversations]) => {
         // Filter out current user
-        const otherUsers = data.filter((u) => u.id !== user?.id)
-        setUsers(otherUsers)
-        setLoading(false)
+        const otherUsers = usersData.filter((u) => u.id !== user.id)
+        
+        // Check conversation status for each user
+        const usersWithStatus = otherUsers.map((u) => {
+          const existingConv = conversations.find(
+            (c) => !c.is_group && 
+            (c.user1_id === String(user.id) && c.user2_id === String(u.id) || 
+             c.user1_id === String(u.id) && c.user2_id === String(user.id))
+          )
+          
+          return {
+            ...u,
+            hasConversation: !!existingConv,
+            existingConversationId: existingConv?.id || null,
+          }
+        })
+        
+        // Check request status for users without conversations
+        Promise.all(
+          usersWithStatus
+            .filter((u) => !u.hasConversation)
+            .map(async (u) => {
+              const canRequest = await canSendRequest(String(user.id), String(u.id))
+              let cooldownHours: number | null = null
+              
+              if (!canRequest) {
+                cooldownHours = await getCooldownRemaining(String(user.id), String(u.id))
+              }
+              
+              return {
+                ...u,
+                canRequest,
+                cooldownHours,
+              }
+            })
+        ).then((updatedUsers) => {
+          const usersWithConversations = usersWithStatus.filter((u) => u.hasConversation)
+          const allUsers = [...usersWithConversations, ...updatedUsers]
+          setUsers(allUsers)
+          setLoading(false)
+        })
       })
     }
   }, [open, user?.id])
@@ -57,6 +108,58 @@ export function NewChatDialog({ open, onOpenChange, onConversationCreated }: New
     }
     
     setCreating(null)
+  }
+
+  const handleSendRequest = async (otherUserId: string) => {
+    if (!user) return
+
+    setRequesting(String(otherUserId))
+    const request = await createChatRequest(String(user.id), String(otherUserId))
+    
+    if (request) {
+      // Reload users to update status
+      const usersData = await getUsers()
+      const otherUsers = usersData.filter((u) => u.id !== user.id)
+      const conversations = await getConversations(user.id)
+      
+      const usersWithStatus = otherUsers.map((u) => {
+        const existingConv = conversations.find(
+          (c) => !c.is_group && 
+          (c.user1_id === user.id && c.user2_id === u.id || 
+           c.user1_id === u.id && c.user2_id === user.id)
+        )
+        
+        return {
+          ...u,
+          hasConversation: !!existingConv,
+          existingConversationId: existingConv?.id || null,
+        }
+      })
+      
+      // Update the specific user's status
+      const updatedUsers = usersWithStatus.map((u) => {
+        if (u.id === otherUserId) {
+          return {
+            ...u,
+            canRequest: false,
+            cooldownHours: null,
+          }
+        }
+        return u
+      })
+      
+      setUsers(updatedUsers)
+      onOpenChange(false)
+      setSearchQuery('')
+    }
+    
+    setRequesting(null)
+  }
+
+  const handleOpenExistingChat = (conversationId: string) => {
+    onConversationCreated(conversationId)
+    onOpenChange(false)
+    setSearchQuery('')
   }
 
   if (!open) return null
@@ -100,31 +203,74 @@ export function NewChatDialog({ open, onOpenChange, onConversationCreated }: New
             </div>
           ) : (
             <div className="space-y-1">
-              {filteredUsers.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => handleCreateConversation(String(user.id))}
-                  disabled={creating === String(user.id)}
-                  className="w-full flex items-center gap-3 p-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50"
-                >
-                  <Avatar className="h-10 w-10">
-                    <ThemeAvatarImage avatarUrl={user.avatar_url} alt={user.name} />
-                  </Avatar>
-                  <div className="flex-1 text-left">
-                    <p className="font-medium text-black dark:text-white">
-                      {user.fullname || user.username || user.email}
-                    </p>
-                    {user.username && (
-                      <p className="text-sm text-black/70 dark:text-white/70">@{user.username}</p>
-                    )}
-                  </div>
-                  {creating === String(user.id) && (
-                    <div className="flex items-center justify-center">
-                      <div className="loader" style={{ width: '20px', height: '18px', border: '1px solid', padding: '0 3px' }}></div>
+              {filteredUsers.map((userItem) => {
+                const isCreating = creating === String(userItem.id)
+                const isRequesting = requesting === String(userItem.id)
+                const isLoading = isCreating || isRequesting
+                
+                return (
+                  <div
+                    key={userItem.id}
+                    className="w-full flex items-center gap-3 p-3 rounded-md hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  >
+                    <Avatar className="h-10 w-10">
+                      <ThemeAvatarImage avatarUrl={userItem.avatar_url} alt={userItem.name} />
+                    </Avatar>
+                    <div className="flex-1 text-left min-w-0">
+                      <p className="font-medium text-black dark:text-white truncate">
+                        {userItem.fullname || userItem.username || userItem.email}
+                      </p>
+                      {userItem.username && (
+                        <p className="text-sm text-black/70 dark:text-white/70">@{userItem.username}</p>
+                      )}
+                      {userItem.hasConversation && (
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">Existing chat</p>
+                      )}
+                      {userItem.cooldownHours !== null && userItem.cooldownHours !== undefined && userItem.cooldownHours > 0 && (
+                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                          Cooldown: {Math.ceil(userItem.cooldownHours)}h
+                        </p>
+                      )}
                     </div>
-                  )}
-                </button>
-              ))}
+                    <div className="flex items-center gap-2">
+                      {userItem.hasConversation ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleOpenExistingChat(userItem.existingConversationId!)}
+                          disabled={isLoading}
+                          className="h-8"
+                        >
+                          <MessageSquare size={16} className="mr-1" />
+                          Open Chat
+                        </Button>
+                      ) : userItem.canRequest !== false ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleSendRequest(String(userItem.id))}
+                          disabled={isLoading}
+                          className="h-8"
+                        >
+                          <Mailbox size={16} className="mr-1" />
+                          Request
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground px-2">
+                          {userItem.cooldownHours && userItem.cooldownHours > 0
+                            ? `Wait ${Math.ceil(userItem.cooldownHours)}h`
+                            : 'Request sent'}
+                        </span>
+                      )}
+                      {isLoading && (
+                        <div className="flex items-center justify-center">
+                          <div className="loader" style={{ width: '20px', height: '18px', border: '1px solid', padding: '0 3px' }}></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>
