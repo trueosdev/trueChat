@@ -9,7 +9,8 @@ import { getPendingRequests, getOutgoingRequests, acceptChatRequest, denyChatReq
 import { useAuth } from "@/hooks/useAuth";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import useChatStore from "@/hooks/useChatStore";
-import { getConversations } from "@/lib/services/conversations";
+import { getConversations, createConversation } from "@/lib/services/conversations";
+import { supabase } from "@/lib/supabase/client";
 
 interface PendingChatsPageProps {
   onRequestAccepted?: (conversationId: string) => void;
@@ -134,6 +135,90 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
     return `${Math.ceil(hours)} hours`;
   };
 
+  const handleAcceptedRequestClick = async (request: ChatRequest) => {
+    if (!user || request.status !== 'accepted') return;
+
+    try {
+      // First, reload conversations to ensure we have the latest data
+      const updatedConversations = await getConversations(user.id);
+      setConversations(updatedConversations);
+      
+      // Find the conversation between the two users from the loaded conversations
+      let conversation = updatedConversations.find((conv) => {
+        if (conv.is_group) return false;
+        return (
+          (conv.user1_id === request.requester_id && conv.user2_id === request.recipient_id) ||
+          (conv.user1_id === request.recipient_id && conv.user2_id === request.requester_id)
+        );
+      });
+
+      // If not found in loaded conversations, query the database directly
+      if (!conversation) {
+        const { data: convData, error: convError } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('is_group', false)
+          .or(`and(user1_id.eq.${request.requester_id},user2_id.eq.${request.recipient_id}),and(user1_id.eq.${request.recipient_id},user2_id.eq.${request.requester_id})`)
+          .maybeSingle();
+
+        // If conversation doesn't exist but request is accepted, create it
+        if ((convError || !convData) && request.status === 'accepted') {
+          console.log('Conversation not found, creating it for accepted request');
+          const newConversation = await createConversation(request.requester_id, request.recipient_id);
+          
+          if (!newConversation) {
+            console.error('Failed to create conversation for accepted request');
+            return;
+          }
+
+          // Reload conversations to include the newly created conversation
+          const refreshedConversations = await getConversations(user.id);
+          setConversations(refreshedConversations);
+          
+          // Find the conversation from the refreshed list
+          conversation = refreshedConversations.find((conv) => {
+            if (conv.is_group) return false;
+            return conv.id === newConversation.id;
+          });
+
+          if (!conversation) {
+            console.error('Conversation still not found after creation');
+            return;
+          }
+        } else if (convError || !convData) {
+          console.error('Conversation not found between users:', convError);
+          return;
+        } else {
+          // Conversation found in database, reload and find it
+          const refreshedConversations = await getConversations(user.id);
+          setConversations(refreshedConversations);
+          
+          // Find the conversation from the refreshed list
+          conversation = refreshedConversations.find((conv) => {
+            if (conv.is_group) return false;
+            return (
+              (conv.user1_id === request.requester_id && conv.user2_id === request.recipient_id) ||
+              (conv.user1_id === request.recipient_id && conv.user2_id === request.requester_id)
+            );
+          });
+
+          if (!conversation) {
+            console.error('Conversation still not found after refresh');
+            return;
+          }
+        }
+      }
+      
+      // Select the conversation
+      setSelectedConversationId(conversation.id);
+      if (onRequestAccepted) {
+        onRequestAccepted(conversation.id);
+      }
+    } catch (error) {
+      console.error('Error opening accepted chat:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -187,7 +272,7 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                   return (
                     <div
                       key={request.id}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-black"
+                      className="flex items-center gap-3 p-3 rounded-lg border border-black/10 dark:border-white/10"
                     >
                       <Avatar className="h-10 w-10">
                         <ThemeAvatarImage
@@ -253,7 +338,14 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                   return (
                     <div
                       key={request.id}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-black"
+                      className={`flex items-center gap-3 p-3 rounded-lg border border-[1px] border-black dark:border-white hover:bg-black/15 dark:hover:bg-white/5 ${
+                        request.status === 'accepted' ? 'cursor-pointer' : ''
+                      }`}
+                      onClick={() => {
+                        if (request.status === 'accepted') {
+                          handleAcceptedRequestClick(request);
+                        }
+                      }}
                     >
                       <Avatar className="h-10 w-10">
                         <ThemeAvatarImage
@@ -277,17 +369,21 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                         )}
                       </div>
                       <div className="flex items-center">
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${
-                            request.status === 'pending'
-                              ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                              : request.status === 'accepted'
-                              ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                              : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                          }`}
-                        >
-                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                        </span>
+                        {request.status === 'accepted' ? (
+                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-[#181818]">
+                            Click to open chat
+                          </span>
+                        ) : (
+                          <span
+                            className={`text-xs px-2 py-1 rounded ${
+                              request.status === 'pending'
+                                ? 'bg-yellow-100 text-[#181818]'
+                                : 'bg-red-100 text-[#181818]'
+                            }`}
+                          >
+                            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   );

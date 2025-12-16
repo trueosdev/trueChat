@@ -22,15 +22,27 @@ export async function signUp(email: string, password: string, username: string, 
  * This function uses a database function to find the email associated with a username
  */
 async function getEmailByUsername(username: string): Promise<string | null> {
-  const { data, error } = await supabase.rpc('get_email_by_username', {
-    p_username: username,
-  })
+  try {
+    // Add timeout to prevent hanging on slow database
+    const timeoutPromise = new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), 5000) // 5 second timeout
+    })
 
-  if (error || !data) {
+    const rpcPromise = supabase.rpc('get_email_by_username', {
+      p_username: username,
+    }).then(({ data, error }) => {
+      if (error || !data) {
+        return null
+      }
+      return data
+    })
+
+    const result = await Promise.race([rpcPromise, timeoutPromise])
+    return result
+  } catch (error) {
+    console.error('Error looking up email by username:', error)
     return null
   }
-
-  return data
 }
 
 /**

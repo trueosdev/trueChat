@@ -32,8 +32,8 @@ function LoginForm() {
       setError(error.message)
       setLoading(false)
     } else {
+      // router.push will handle navigation, no need for refresh
       router.push('/')
-      router.refresh()
     }
   }
 
