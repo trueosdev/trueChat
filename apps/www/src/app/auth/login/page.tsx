@@ -49,7 +49,7 @@ function LoginForm() {
           />
         </div>
 
-        <div className="bg-white dark:bg-[#181818] rounded-lg shadow-lg p-8 space-y-8">
+        <div className="rounded-lg p-8 space-y-8">
 
           <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
@@ -133,7 +133,7 @@ export default function LoginPage() {
               className="h-16 mx-auto mb-4"
             />
           </div>
-          <div className="bg-white dark:bg-[#181818] border border-[#181818] dark:border-white rounded-lg shadow-lg p-8">
+          <div className="p-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-[#181818] dark:text-white">Loading...</h1>
             </div>
