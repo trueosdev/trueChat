@@ -128,17 +128,39 @@ ChatBubbleMessage.displayName = "ChatBubbleMessage";
 interface ChatBubbleTimestampProps
   extends React.HTMLAttributes<HTMLDivElement> {
   timestamp: string;
+  createdAt?: string;
 }
 
-const ChatBubbleTimestamp: React.FC<ChatBubbleTimestampProps> = ({
-  timestamp,
-  className,
-  ...props
-}) => (
-  <div className={cn("text-xs mt-2 text-left", className)} {...props}>
-    {timestamp}
-  </div>
+const ChatBubbleTimestamp = React.forwardRef<HTMLDivElement, ChatBubbleTimestampProps>(
+  ({ timestamp, createdAt, className, ...props }, ref) => {
+    let formattedDate: string | null = null;
+    
+    if (createdAt) {
+      try {
+        const date = new Date(createdAt);
+        if (!isNaN(date.getTime())) {
+          formattedDate = date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+          });
+        }
+      } catch (e) {
+        // Invalid date, ignore
+      }
+    }
+
+    return (
+      <div ref={ref} className={cn("text-xs mt-2 text-left flex flex-col", className)} {...props}>
+        {formattedDate && (
+          <div>{formattedDate}</div>
+        )}
+        <div>{timestamp}</div>
+      </div>
+    );
+  }
 );
+ChatBubbleTimestamp.displayName = "ChatBubbleTimestamp";
 
 // ChatBubbleAction
 type ChatBubbleActionProps = ButtonProps & {

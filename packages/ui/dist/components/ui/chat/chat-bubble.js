@@ -49,7 +49,25 @@ const chatBubbleMessageVariants = cva("p-4", {
 });
 const ChatBubbleMessage = React.forwardRef(({ className, variant, layout, isLoading = false, children, ...props }, ref) => (_jsx("div", { className: cn(chatBubbleMessageVariants({ variant, layout, className }), "break-words max-w-full whitespace-pre-wrap text-left"), ref: ref, ...props, children: isLoading ? (_jsx("div", { className: "flex items-center space-x-2", children: _jsx(MessageLoading, {}) })) : (children) })));
 ChatBubbleMessage.displayName = "ChatBubbleMessage";
-const ChatBubbleTimestamp = ({ timestamp, className, ...props }) => (_jsx("div", { className: cn("text-xs mt-2 text-left", className), ...props, children: timestamp }));
+const ChatBubbleTimestamp = ({ timestamp, createdAt, className, ...props }) => {
+    let formattedDate = null;
+    if (createdAt) {
+        try {
+            const date = new Date(createdAt);
+            if (!isNaN(date.getTime())) {
+                formattedDate = date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                });
+            }
+        }
+        catch (e) {
+            // Invalid date, ignore
+        }
+    }
+    return (_jsxs("div", { className: cn("text-xs mt-2 text-left flex flex-col", className), ...props, children: [formattedDate && (_jsx("div", { children: formattedDate })), _jsx("div", { children: timestamp })] }));
+};
 const ChatBubbleAction = ({ icon, onClick, className, variant = "ghost", size = "icon", ...props }) => (_jsx(Button, { variant: variant, size: size, className: className, onClick: onClick, ...props, children: icon }));
 const ChatBubbleActionWrapper = React.forwardRef(({ variant, className, children, ...props }, ref) => (_jsx("div", { ref: ref, className: cn("absolute top-1/2 -translate-y-1/2 flex opacity-0 group-hover:opacity-100 transition-opacity duration-200", variant === "sent"
         ? "-left-1 -translate-x-full flex-row-reverse"
