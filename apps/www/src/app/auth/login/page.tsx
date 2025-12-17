@@ -53,7 +53,7 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-3 text-sm text-[#181818] dark:text-white border border-black dark:border-white rounded-md">
+            <div className="p-3 text-sm text-[#181818] dark:text-white border border-[#181818] dark:border-white rounded-md">
               {error}
             </div>
           )}
@@ -108,9 +108,9 @@ function LoginForm() {
             {loading ? 'Signing in...' : 'Sign in'}
           </Button>
 
-          <p className="text-center text-sm text-black dark:text-white">
+          <p className="text-center text-sm text-[#181818] dark:text-white">
             New to trueChats?{' '}
-            <Link href="/auth/signup" className="text-black dark:text-white underline hover:no-underline">
+            <Link href="/auth/signup" className="text-[#181818] dark:text-white underline hover:no-underline">
               Sign up
             </Link>
           </p>
@@ -133,9 +133,9 @@ export default function LoginPage() {
               className="h-16 mx-auto mb-4"
             />
           </div>
-          <div className="bg-white dark:bg-black border border-black dark:border-white rounded-lg shadow-lg p-8">
+          <div className="bg-white dark:bg-[#181818] border border-[#181818] dark:border-white rounded-lg shadow-lg p-8">
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-black dark:text-white">Loading...</h1>
+              <h1 className="text-3xl font-bold text-[#181818] dark:text-white">Loading...</h1>
             </div>
           </div>
         </div>
