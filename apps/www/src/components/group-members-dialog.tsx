@@ -14,6 +14,7 @@ import {
 import { getGroupParticipants, addParticipantToGroup, removeParticipantFromGroup, updateParticipantRole } from '@/lib/services/groups'
 import { getUsers } from '@/lib/services/users'
 import { useAuth } from '@/hooks/useAuth'
+import { useColorTheme } from '@/hooks/useColorTheme'
 import type { ConversationParticipant } from '@/app/data'
 import type { User } from '@/app/data'
 
@@ -27,6 +28,8 @@ interface GroupMembersDialogProps {
 
 export function GroupMembersDialog({ open, onOpenChange, conversationId, conversationName, onEditGroup }: GroupMembersDialogProps) {
   const { user } = useAuth()
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [participants, setParticipants] = useState<ConversationParticipant[]>([])
   const [loading, setLoading] = useState(false)
   const [showAddMember, setShowAddMember] = useState(false)
@@ -255,7 +258,7 @@ export function GroupMembersDialog({ open, onOpenChange, conversationId, convers
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleRemoveMember(participant.user_id)}
-                                className="text-red-600 dark:text-red-400"
+                                className={isBlackWhite ? "text-foreground" : "text-red-600 dark:text-red-400"}
                               >
                                 <UserMinus size={14} className="mr-2" />
                                 Remove from Group

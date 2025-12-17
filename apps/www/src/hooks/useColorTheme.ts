@@ -45,6 +45,13 @@ export function useColorTheme() {
     root.style.setProperty("--muted-foreground", colors.foreground);
     root.style.setProperty("--accent", colors.secondary);
     root.style.setProperty("--accent-foreground", colors.foreground);
+    
+    // Add data attribute for Black & White theme
+    if (colorTheme.name === "Black & White") {
+      root.setAttribute("data-color-theme", "black-white");
+    } else {
+      root.removeAttribute("data-color-theme");
+    }
   }, [colorTheme, resolvedTheme, mounted]);
 
   const setTheme = (theme: ColorTheme) => {

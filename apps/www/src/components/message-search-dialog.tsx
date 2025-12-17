@@ -5,6 +5,7 @@ import { X, Search } from 'lucide-react'
 import { Button } from './ui/button'
 import { Avatar } from './ui/avatar'
 import { ThemeAvatarImage } from './ui/theme-avatar'
+import { useColorTheme } from '@/hooks/useColorTheme'
 import { Message } from '@/app/data'
 // Format date helper
 const formatDate = (dateString: string) => {
@@ -34,6 +35,8 @@ export function MessageSearchDialog({
   messages, 
   conversationName 
 }: MessageSearchDialogProps) {
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [searchQuery, setSearchQuery] = useState('')
 
   const filteredMessages = useMemo(() => {
@@ -143,7 +146,11 @@ export function MessageSearchDialog({
                       </div>
                       <p className="text-sm text-black dark:text-white break-words">
                         {beforeMatch}
-                        <mark className="bg-yellow-200 dark:bg-yellow-900 px-0.5 rounded">
+                        <mark className={`px-0.5 rounded ${
+                          isBlackWhite 
+                            ? "bg-foreground text-background" 
+                            : "bg-yellow-200 dark:bg-yellow-900"
+                        }`}>
                           {match}
                         </mark>
                         {afterMatch}

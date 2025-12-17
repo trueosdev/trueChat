@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useColorTheme } from "@/hooks/useColorTheme";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThemeAvatarImage } from "@/components/ui/theme-avatar";
 import {
@@ -21,6 +22,8 @@ import { ThemeEditor } from "./theme-editor";
 
 export function UserAvatarMenu() {
   const { user } = useAuth();
+  const { colorTheme } = useColorTheme();
+  const isBlackWhite = colorTheme.name === "Black & White";
   const router = useRouter();
   const [avatarDialogOpen, setAvatarDialogOpen] = useState(false);
 
@@ -82,7 +85,7 @@ export function UserAvatarMenu() {
           </DropdownMenuItem>
           <ThemeEditor />
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600">
+          <DropdownMenuItem onClick={handleLogout} className={`cursor-pointer ${isBlackWhite ? "text-foreground" : "text-red-600"}`}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log Out</span>
           </DropdownMenuItem>

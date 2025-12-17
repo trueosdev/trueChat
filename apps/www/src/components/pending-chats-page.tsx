@@ -11,6 +11,7 @@ import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import useChatStore from "@/hooks/useChatStore";
 import { getConversations, createConversation } from "@/lib/services/conversations";
 import { supabase } from "@/lib/supabase/client";
+import { useColorTheme } from "@/hooks/useColorTheme";
 
 interface PendingChatsPageProps {
   onRequestAccepted?: (conversationId: string) => void;
@@ -20,6 +21,8 @@ type ViewType = 'incoming' | 'outgoing';
 
 export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
   const { user } = useAuth();
+  const { colorTheme } = useColorTheme();
+  const isBlackWhite = colorTheme.name === "Black & White";
   const [incomingRequests, setIncomingRequests] = useState<ChatRequest[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<ChatRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -296,7 +299,9 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                           variant="ghost"
                           onClick={() => handleAccept(request.id)}
                           disabled={processing === request.id}
-                          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
+                          className={isBlackWhite 
+                            ? "h-8 w-8 text-foreground hover:text-foreground hover:bg-accent" 
+                            : "h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-950"}
                           title="Accept"
                         >
                           <Check size={18} />
@@ -306,7 +311,9 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                           variant="ghost"
                           onClick={() => handleDeny(request.id)}
                           disabled={processing === request.id}
-                          className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                          className={isBlackWhite 
+                            ? "h-8 w-8 text-foreground hover:text-foreground hover:bg-accent" 
+                            : "h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"}
                           title="Deny"
                         >
                           <X size={18} />
@@ -363,20 +370,22 @@ export function PendingChatsPage({ onRequestAccepted }: PendingChatsPageProps) {
                           </p>
                         )}
                         {showCooldown && (
-                          <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                          <p className={`text-xs mt-1 ${isBlackWhite ? "text-foreground" : "text-orange-600 dark:text-orange-400"}`}>
                             Cooldown: {formatCooldown(cooldown)}
                           </p>
                         )}
                       </div>
                       <div className="flex items-center">
                         {request.status === 'accepted' ? (
-                          <span className="text-xs px-2 py-1 rounded bg-green-100 text-[#181818]">
+                          <span className={`text-xs px-2 py-1 rounded ${isBlackWhite ? "bg-foreground text-background" : "bg-green-100 text-[#181818]"}`}>
                             Click to open chat
                           </span>
                         ) : (
                           <span
                             className={`text-xs px-2 py-1 rounded ${
-                              request.status === 'pending'
+                              isBlackWhite
+                                ? "bg-foreground text-background"
+                                : request.status === 'pending'
                                 ? 'bg-yellow-100 text-[#181818]'
                                 : 'bg-red-100 text-[#181818]'
                             }`}

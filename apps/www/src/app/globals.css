@@ -138,3 +138,190 @@
   background-color: #FFFFFFE6 !important;
   border: 1px solid #FFFFFFCC !important;
 }
+
+/* Cube Input Styles */
+.block-cube {
+  position: relative;
+}
+
+.block-cube .bg-top {
+  position: absolute;
+  height: 10px;
+  bottom: 100%;
+  left: 5px;
+  right: -5px;
+  transform: skew(-45deg, 0);
+  margin: 0;
+}
+
+.block-cube .bg-top .bg-inner {
+  bottom: 0;
+}
+
+.block-cube .bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.block-cube .bg-right {
+  position: absolute;
+  top: -5px;
+  z-index: 0;
+  bottom: 5px;
+  width: 10px;
+  left: 100%;
+  transform: skew(0, -45deg);
+}
+
+.block-cube .bg-right .bg-inner {
+  left: 0;
+}
+
+.block-cube .bg .bg-inner {
+  transition: background 0.2s ease-in-out;
+}
+
+.block-cube .bg-inner {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  right: 2px;
+  bottom: 2px;
+}
+
+.block-cube .text {
+  position: relative;
+  z-index: 2;
+}
+
+/* Light theme cube colors */
+.block-cube .bg-top,
+.block-cube .bg,
+.block-cube .bg-right {
+  background: #181818;
+}
+
+.block-cube .bg-inner {
+  background: white;
+}
+
+/* Dark theme cube colors */
+.dark .block-cube .bg-top,
+.dark .block-cube .bg,
+.dark .block-cube .bg-right {
+  background: white;
+}
+
+.dark .block-cube .bg-inner {
+  background: #181818;
+}
+
+/* Cube input specific styles */
+.block-cube.block-input input {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 14px 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: monospace, serif;
+  letter-spacing: 0.05em;
+  font-size: 16px;
+}
+
+.block-cube.block-input input:hover,
+.block-cube.block-input input:focus {
+  outline: none;
+  border: 0;
+}
+
+/* Lightening effect on hover and focus */
+.block-cube.block-input:hover .bg-inner,
+.block-cube.block-input:focus-within .bg-inner {
+  background: #f5f5f5;
+}
+
+.dark .block-cube.block-input:hover .bg-inner,
+.dark .block-cube.block-input:focus-within .bg-inner {
+  background: #2a2a2a;
+}
+
+/* Black & White theme overrides for hover states */
+[data-color-theme="black-white"] .block-cube.block-input:hover .bg-inner,
+[data-color-theme="black-white"] .block-cube.block-input:focus-within .bg-inner {
+  background: white;
+}
+
+[data-color-theme="black-white"].dark .block-cube.block-input:hover .bg-inner,
+[data-color-theme="black-white"].dark .block-cube.block-input:focus-within .bg-inner {
+  background: #181818;
+}
+
+.block-cube.block-input .bg-top,
+.block-cube.block-input .bg-right,
+.block-cube.block-input .bg {
+  transition: background 0.2s ease-in-out;
+}
+
+.block-cube.block-input .bg-right,
+.block-cube.block-input .bg-top {
+  background: #181818;
+}
+
+.dark .block-cube.block-input .bg-right,
+.dark .block-cube.block-input .bg-top {
+  background: white;
+}
+
+.block-cube.block-input .bg-inner {
+  transition: background 0.2s ease-in-out;
+}
+
+.block-cube.block-input:hover .bg-top,
+.block-cube.block-input:hover .bg-right,
+.block-cube.block-input:hover .bg,
+.block-cube.block-input:focus-within .bg-top,
+.block-cube.block-input:focus-within .bg-right,
+.block-cube.block-input:focus-within .bg {
+  background: #181818;
+}
+
+.dark .block-cube.block-input:hover .bg-top,
+.dark .block-cube.block-input:hover .bg-right,
+.dark .block-cube.block-input:hover .bg,
+.dark .block-cube.block-input:focus-within .bg-top,
+.dark .block-cube.block-input:focus-within .bg-right,
+.dark .block-cube.block-input:focus-within .bg {
+  background: white;
+}
+
+/* Cube button styles */
+.block-cube.block-cube-hover {
+  position: relative;
+  width: 100%;
+  display: block;
+  padding: 14px 16px;
+  background: transparent;
+  outline: none;
+  border: 0;
+  color: inherit;
+  letter-spacing: 0.1em;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.block-cube.block-cube-hover:focus,
+.block-cube.block-cube-hover:hover {
+  outline: none;
+}
+
+.block-cube.block-cube-hover:focus .bg .bg-inner,
+.block-cube.block-cube-hover:hover .bg .bg-inner {
+  top: 100%;
+}

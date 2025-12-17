@@ -12,6 +12,7 @@ import { buttonVariants } from "../ui/button";
 import { ExpandableChatHeader } from "@shadcn-chat/ui";
 import { subscribeToPresence, type UserPresence } from "@/lib/services/presence";
 import { useAuth } from "@/hooks/useAuth";
+import { useColorTheme } from "@/hooks/useColorTheme";
 
 interface ChatTopbarProps {
   conversation: ConversationWithUser;
@@ -23,6 +24,8 @@ export const TopbarIcons = [{ icon: Phone }, { icon: Video }, { icon: Info }];
 
 export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }: ChatTopbarProps) {
   const { user } = useAuth();
+  const { colorTheme } = useColorTheme();
+  const isBlackWhite = colorTheme.name === "Black & White";
   const [isOnline, setIsOnline] = useState(false);
 
   useEffect(() => {
@@ -108,7 +111,9 @@ export default function ChatTopbar({ conversation, onShowMembers, onShowSearch }
           </Avatar>
           {/* Online status indicator */}
           {isOnline && (
-            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-background rounded-full" />
+            <div className={`absolute bottom-0 right-0 w-2.5 h-2.5 border-2 border-background rounded-full ${
+              isBlackWhite ? "bg-foreground" : "bg-green-500"
+            }`} />
           )}
         </div>
         <div className="flex flex-col text-left">

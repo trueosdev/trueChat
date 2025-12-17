@@ -27,6 +27,7 @@ import { ThemeAvatarImage } from './ui/theme-avatar'
 import { updateGroupName, addParticipantToGroup, getGroupParticipants } from '@/lib/services/groups'
 import { getUsers } from '@/lib/services/users'
 import { useAuth } from '@/hooks/useAuth'
+import { useColorTheme } from '@/hooks/useColorTheme'
 import type { User } from '@/app/data'
 import * as LucideIcons from 'lucide-react'
 
@@ -74,6 +75,8 @@ export function EditGroupDialog({
   onGroupUpdated 
 }: EditGroupDialogProps) {
   const { user } = useAuth()
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [groupName, setGroupName] = useState(currentName)
   const [showAddUser, setShowAddUser] = useState(false)
   const [availableUsers, setAvailableUsers] = useState<User[]>([])
@@ -253,7 +256,11 @@ export function EditGroupDialog({
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-600 dark:text-red-400 text-sm">
+                <div className={`p-3 border rounded-md text-sm ${
+                  isBlackWhite 
+                    ? "bg-foreground/10 border-foreground/20 text-foreground" 
+                    : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400"
+                }`}>
                   {error}
                 </div>
               )}

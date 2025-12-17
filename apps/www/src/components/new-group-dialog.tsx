@@ -11,6 +11,7 @@ import { getConversations } from '@/lib/services/conversations'
 import { useAuth } from '@/hooks/useAuth'
 import type { User } from '@/app/data'
 import { supabase } from '@/lib/supabase/client'
+import { useColorTheme } from '@/hooks/useColorTheme'
 
 interface NewGroupDialogProps {
   open: boolean
@@ -24,6 +25,8 @@ interface UserWithStatus extends User {
 
 export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupDialogProps) {
   const { user } = useAuth()
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [users, setUsers] = useState<UserWithStatus[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
@@ -184,8 +187,16 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                 />
               </div>
               {error && (
-                <div className="mt-3 p-2 rounded-md bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800">
-                  <p className="text-xs text-orange-800 dark:text-orange-200">{error}</p>
+                <div className={`mt-3 p-2 rounded-md border ${
+                  isBlackWhite 
+                    ? "bg-foreground/10 border-foreground/20" 
+                    : "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                }`}>
+                  <p className={`text-xs ${
+                    isBlackWhite 
+                      ? "text-foreground" 
+                      : "text-orange-800 dark:text-orange-200"
+                  }`}>{error}</p>
                 </div>
               )}
               {selectedUserIds.size > 0 && !error && (
@@ -243,7 +254,11 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
                             <p className="text-sm text-black/70 dark:text-white/70">@{userItem.username}</p>
                           )}
                           {!canAdd && (
-                            <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                            <p className={`text-xs mt-1 ${
+                              isBlackWhite 
+                                ? "text-foreground" 
+                                : "text-orange-600 dark:text-orange-400"
+                            }`}>
                               Hasn't accepted your chat request
                             </p>
                           )}
@@ -269,8 +284,16 @@ export function NewGroupDialog({ open, onOpenChange, onGroupCreated }: NewGroupD
           <>
             <div className="p-4 space-y-4 flex-1">
               {error && (
-                <div className="p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                <div className={`p-3 rounded-md border ${
+                  isBlackWhite 
+                    ? "bg-foreground/10 border-foreground/20" 
+                    : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                }`}>
+                  <p className={`text-sm ${
+                    isBlackWhite 
+                      ? "text-foreground" 
+                      : "text-red-800 dark:text-red-200"
+                  }`}>{error}</p>
                 </div>
               )}
               <div>

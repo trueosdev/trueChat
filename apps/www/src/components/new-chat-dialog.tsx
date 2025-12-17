@@ -9,6 +9,7 @@ import { getUsers } from '@/lib/services/users'
 import { createConversation, getConversations } from '@/lib/services/conversations'
 import { createChatRequest, canSendRequest, getCooldownRemaining, type ChatRequest } from '@/lib/services/chat-requests'
 import { useAuth } from '@/hooks/useAuth'
+import { useColorTheme } from '@/hooks/useColorTheme'
 import type { User } from '@/app/data'
 import { supabase } from '@/lib/supabase/client'
 
@@ -27,6 +28,8 @@ interface UserWithStatus extends User {
 
 export function NewChatDialog({ open, onOpenChange, onConversationCreated }: NewChatDialogProps) {
   const { user } = useAuth()
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [users, setUsers] = useState<UserWithStatus[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
@@ -224,10 +227,18 @@ export function NewChatDialog({ open, onOpenChange, onConversationCreated }: New
                         <p className="text-sm text-black/70 dark:text-white/70">@{userItem.username}</p>
                       )}
                       {userItem.hasConversation && (
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">Existing chat</p>
+                        <p className={`text-xs mt-1 ${
+                          isBlackWhite 
+                            ? "text-foreground" 
+                            : "text-green-600 dark:text-green-400"
+                        }`}>Existing chat</p>
                       )}
                       {userItem.cooldownHours !== null && userItem.cooldownHours !== undefined && userItem.cooldownHours > 0 && (
-                        <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                        <p className={`text-xs mt-1 ${
+                          isBlackWhite 
+                            ? "text-foreground" 
+                            : "text-orange-600 dark:text-orange-400"
+                        }`}>
                           Cooldown: {Math.ceil(userItem.cooldownHours)}h
                         </p>
                       )}

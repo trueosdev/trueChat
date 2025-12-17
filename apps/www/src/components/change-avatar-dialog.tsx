@@ -8,6 +8,7 @@ import { ThemeAvatarImage } from './ui/theme-avatar'
 import { uploadAvatar, updateUserAvatar } from '@/lib/services/avatar'
 import { useAuth } from '@/hooks/useAuth'
 import { useAvatarUrl } from '@/hooks/useAvatarUrl'
+import { useColorTheme } from '@/hooks/useColorTheme'
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
@@ -19,6 +20,8 @@ interface ChangeAvatarDialogProps {
 
 export function ChangeAvatarDialog({ open, onOpenChange, onAvatarChanged }: ChangeAvatarDialogProps) {
   const { user } = useAuth()
+  const { colorTheme } = useColorTheme()
+  const isBlackWhite = colorTheme.name === "Black & White"
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -274,8 +277,16 @@ export function ChangeAvatarDialog({ open, onOpenChange, onAvatarChanged }: Chan
 
           {/* Error Message */}
           {error && (
-            <div className="w-full p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-md">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className={`w-full p-3 border rounded-md ${
+              isBlackWhite 
+                ? "bg-foreground/10 border-foreground/20" 
+                : "bg-red-100 dark:bg-red-900/30 border-red-300 dark:border-red-700"
+            }`}>
+              <p className={`text-sm ${
+                isBlackWhite 
+                  ? "text-foreground" 
+                  : "text-red-600 dark:text-red-400"
+              }`}>{error}</p>
             </div>
           )}
 

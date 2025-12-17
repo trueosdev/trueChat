@@ -1,6 +1,7 @@
 import { X, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatFileSize } from "@/lib/services/attachments";
+import { useColorTheme } from "@/hooks/useColorTheme";
 
 interface FilePreviewProps {
   file: File;
@@ -10,6 +11,9 @@ interface FilePreviewProps {
 }
 
 export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePreviewProps) {
+  const { colorTheme } = useColorTheme();
+  const isBlackWhite = colorTheme.name === "Black & White";
+  
   return (
     <div className="absolute bottom-full left-2 right-2 mb-2 bg-white dark:bg-black rounded-xl shadow-xl border border-black/20 dark:border-white/20 overflow-hidden animate-in slide-in-from-bottom-2">
       {previewUrl ? (
@@ -36,10 +40,14 @@ export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePrevie
               variant="ghost"
               size="icon"
               onClick={onRemove}
-              className="h-8 w-8 shrink-0 hover:bg-red-100 dark:hover:bg-red-900/20"
+              className={isBlackWhite 
+                ? "h-8 w-8 shrink-0 hover:bg-accent" 
+                : "h-8 w-8 shrink-0 hover:bg-red-100 dark:hover:bg-red-900/20"}
               disabled={disabled}
             >
-              <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <X className={isBlackWhite 
+                ? "h-4 w-4 text-foreground" 
+                : "h-4 w-4 text-red-600 dark:text-red-400"} />
             </Button>
           </div>
         </div>
@@ -63,10 +71,14 @@ export function FilePreview({ file, previewUrl, onRemove, disabled }: FilePrevie
             variant="ghost"
             size="icon"
             onClick={onRemove}
-            className="h-8 w-8 shrink-0 hover:bg-red-100 dark:hover:bg-red-900/20"
+            className={isBlackWhite 
+              ? "h-8 w-8 shrink-0 hover:bg-accent" 
+              : "h-8 w-8 shrink-0 hover:bg-red-100 dark:hover:bg-red-900/20"}
             disabled={disabled}
           >
-            <X className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <X className={isBlackWhite 
+              ? "h-4 w-4 text-foreground" 
+              : "h-4 w-4 text-red-600 dark:text-red-400"} />
           </Button>
         </div>
       )}

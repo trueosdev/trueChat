@@ -38,15 +38,18 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white dark:bg-black border border-black dark:border-white rounded-lg shadow-lg p-8 space-y-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-black dark:text-white">Welcome back</h1>
-            <p className="mt-2 text-black dark:text-white">
-              Sign in to your account to continue
-            </p>
-          </div>
+    <div className="flex flex-col items-center justify-center w-full h-full">
+      <div className="w-full max-w-md mx-auto space-y-8">
+        {/* Header with Logo */}
+        <div className="text-center">
+          <img 
+            src="/trueChatsLogo.svg" 
+            alt="trueChats Logo" 
+            className="h-16 mx-auto mb-4"
+          />
+        </div>
+
+        <div className="bg-white dark:bg-[#181818] rounded-lg shadow-lg p-8 space-y-8">
 
           <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
@@ -55,35 +58,49 @@ function LoginForm() {
             </div>
           )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="emailOrUsername" className="block text-sm font-medium mb-2 text-black dark:text-white">
-                Email or Username
-              </label>
+          <div className="space-y-6">
+            <div className="control block-cube block-input">
               <input
                 id="emailOrUsername"
+                name="emailOrUsername"
                 type="text"
                 required
                 value={emailOrUsername}
                 onChange={(e) => setEmailOrUsername(e.target.value)}
-                className="w-full px-3 py-2 border border-black dark:border-white rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-                placeholder="you@example.com or username"
+                placeholder="Username"
+                autoComplete="off"
               />
+              <div className="bg-top">
+                <div className="bg-inner"></div>
+              </div>
+              <div className="bg-right">
+                <div className="bg-inner"></div>
+              </div>
+              <div className="bg">
+                <div className="bg-inner"></div>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2 text-black dark:text-white">
-                Password
-              </label>
+            <div className="control block-cube block-input">
               <input
                 id="password"
+                name="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-black dark:border-white rounded-md bg-white dark:bg-black text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
-                placeholder="••••••••"
+                placeholder="Password"
+                autoComplete="off"
               />
+              <div className="bg-top">
+                <div className="bg-inner"></div>
+              </div>
+              <div className="bg-right">
+                <div className="bg-inner"></div>
+              </div>
+              <div className="bg">
+                <div className="bg-inner"></div>
+              </div>
             </div>
           </div>
 
@@ -92,7 +109,7 @@ function LoginForm() {
           </Button>
 
           <p className="text-center text-sm text-black dark:text-white">
-            Don&apos;t have an account?{' '}
+            New to trueChats?{' '}
             <Link href="/auth/signup" className="text-black dark:text-white underline hover:no-underline">
               Sign up
             </Link>
@@ -107,8 +124,15 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="flex items-center justify-center w-full h-full">
-        <div className="w-full max-w-md mx-auto">
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="w-full max-w-md mx-auto space-y-8">
+          <div className="text-center">
+            <img 
+              src="/trueChatsLogo.svg" 
+              alt="trueChats Logo" 
+              className="h-16 mx-auto mb-4"
+            />
+          </div>
           <div className="bg-white dark:bg-black border border-black dark:border-white rounded-lg shadow-lg p-8">
             <div className="text-center">
               <h1 className="text-3xl font-bold text-black dark:text-white">Loading...</h1>
