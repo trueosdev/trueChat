@@ -192,7 +192,7 @@ export function subscribeToMessages(
       'postgres_changes',
       {
         event: 'INSERT',
-        schema: 'public',
+        schema: 'truechats',
         table: 'messages',
         filter: `conversation_id=eq.${conversationId}`,
       },
@@ -236,7 +236,7 @@ export function subscribeToMessages(
       'postgres_changes',
       {
         event: 'UPDATE',
-        schema: 'public',
+        schema: 'truechats',
         table: 'messages',
         filter: `conversation_id=eq.${conversationId}`,
       },

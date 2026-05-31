@@ -23,6 +23,13 @@ export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co',
   supabaseAnonKey || 'placeholder-key',
   {
+    // trueChats app tables live in the dedicated truechats schema (part of
+    // the shared trueOS project). Setting the default schema lets every
+    // supabase.from(...)/.rpc(...) resolve there without per-call changes.
+    // Shared trueOS identity is read via supabase.schema('trueos').
+    db: {
+      schema: 'truechats',
+    },
     realtime: {
       params: {
         eventsPerSecond: 10,

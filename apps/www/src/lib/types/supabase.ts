@@ -1,5 +1,5 @@
 export interface Database {
-  public: {
+  truechats: {
     Tables: {
       conversations: {
         Row: {
@@ -244,6 +244,29 @@ export interface Database {
           attachment_size?: number | null
         }
       }
+      members: {
+        Row: {
+          id: string
+          username: string
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+        }
+        Insert: {
+          id: string
+          username: string
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          username?: string
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+        }
+      }
     }
     Views: {
       users: {
@@ -263,10 +286,42 @@ export interface Database {
       }
     }
   }
+  trueos: {
+    Tables: {
+      profiles: {
+        Row: {
+          id: string
+          email: string | null
+          full_name: string | null
+          avatar_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string | null
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+  }
 }
 
-export type Conversation = Database['public']['Tables']['conversations']['Row']
-export type Message = Database['public']['Tables']['messages']['Row']
-export type User = Database['public']['Views']['users']['Row']
-export type Username = Database['public']['Views']['usernames']['Row']
+export type Conversation = Database['truechats']['Tables']['conversations']['Row']
+export type Message = Database['truechats']['Tables']['messages']['Row']
+export type User = Database['truechats']['Views']['users']['Row']
+export type Username = Database['truechats']['Views']['usernames']['Row']
+export type Member = Database['truechats']['Tables']['members']['Row']
+export type Profile = Database['trueos']['Tables']['profiles']['Row']
 

@@ -401,7 +401,7 @@ export function subscribeToLooms(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'looms',
       },
       async (payload) => {
@@ -444,7 +444,7 @@ export function subscribeToLoomMembers(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'loom_members',
         filter: `loom_id=eq.${loomId}`,
       },
@@ -568,7 +568,7 @@ export function subscribeToLoomInvites(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'loom_members',
         filter: `user_id=eq.${userId}`,
       },

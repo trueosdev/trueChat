@@ -8,6 +8,11 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
+      // Match the browser client: trueChats app tables live in the
+      // truechats schema of the shared trueOS project.
+      db: {
+        schema: 'truechats',
+      },
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value

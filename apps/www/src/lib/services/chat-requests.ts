@@ -316,7 +316,7 @@ export function subscribeToChatRequests(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'chat_requests',
         filter: `recipient_id=eq.${userId}`,
       },

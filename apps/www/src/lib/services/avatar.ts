@@ -113,19 +113,23 @@ export async function deleteAllUserAvatars(userId: string): Promise<boolean> {
 
 export async function updateUserAvatar(userId: string, avatarUrl: string): Promise<boolean> {
   try {
-    // Update the auth user metadata
-    // Note: The 'users' table is actually a view that reads from auth.users.raw_user_meta_data
-    // So we only need to update the auth user metadata, and the view will reflect the change
-    const { error: authError } = await supabase.auth.updateUser({
-      data: {
-        avatar_url: avatarUrl
-      }
-    })
+    // The trueChats chat avatar lives in truechats.members.avatar_url, which
+    // the truechats.users view surfaces (preferring it over the shared
+    // trueos avatar). The default client schema is 'truechats', so .from
+    // resolves to truechats.members.
+    const { error } = await supabase
+      .from('members')
+      .update({ avatar_url: avatarUrl })
+      .eq('id', userId)
 
-    if (authError) {
-      console.error('Error updating auth user:', authError)
+    if (error) {
+      console.error('Error updating member avatar:', error)
       return false
     }
+
+    // Mirror into auth user_metadata so current-user UI (avatar menu, calls,
+    // etc.) that reads user.user_metadata.avatar_url updates immediately.
+    await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } })
 
     return true
   } catch (error) {

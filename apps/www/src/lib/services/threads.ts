@@ -228,7 +228,7 @@ export function subscribeToThreadFolders(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'thread_folders',
         filter: `loom_id=eq.${loomId}`,
       },
@@ -540,7 +540,7 @@ export function subscribeToThreadMessages(
       'postgres_changes',
       {
         event: 'INSERT',
-        schema: 'public',
+        schema: 'truechats',
         table: 'thread_messages',
         filter: `thread_id=eq.${threadId}`,
       },
@@ -587,7 +587,7 @@ export function subscribeToThreadMessages(
       'postgres_changes',
       {
         event: 'UPDATE',
-        schema: 'public',
+        schema: 'truechats',
         table: 'thread_messages',
         filter: `thread_id=eq.${threadId}`,
       },
@@ -650,7 +650,7 @@ export function subscribeToThreads(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'threads',
         filter: `loom_id=eq.${loomId}`,
       },

@@ -26,7 +26,13 @@ function getSiteOrigin(): string | undefined {
   return DEFAULT_SITE_ORIGIN
 }
 
-export async function signUp(email: string, password: string, username: string, fullname?: string) {
+/**
+ * Create a trueOS account. Only shared-identity fields are captured here
+ * (email, optional full name) — these flow into trueos.profiles via the
+ * on-signup trigger. The trueChats-specific username + chat avatar are
+ * chosen later in the onboarding flow (first use of trueChats).
+ */
+export async function signUp(email: string, password: string, fullname?: string) {
   const origin = getSiteOrigin()
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -34,10 +40,8 @@ export async function signUp(email: string, password: string, username: string, 
     options: {
       emailRedirectTo: origin ? `${origin}/auth/callback` : undefined,
       data: {
-        username,
         fullname: fullname || '',
         avatar_url: '',
-        bio: '',
       },
     },
   })

@@ -122,7 +122,7 @@ export function subscribeToConversations(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'conversations',
         filter: `user1_id=eq.${userId}`,
       },
@@ -159,7 +159,7 @@ export function subscribeToConversations(
       'postgres_changes',
       {
         event: '*',
-        schema: 'public',
+        schema: 'truechats',
         table: 'conversations',
         filter: `user2_id=eq.${userId}`,
       },
